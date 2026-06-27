@@ -25,7 +25,9 @@ app.secret_key = os.environ.get('SECRET_KEY', 'gamevault-secret-2024-xk9q')
 
 # ─── Config ────────────────────────────────────────────────────────────────────
 BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
-DB_PATH      = os.path.join(BASE_DIR, 'gamevault.db')
+# Use /data for Railway persistent volume, fallback to local for development
+DATA_DIR = '/data' if os.path.exists('/data') else BASE_DIR
+DB_PATH  = os.path.join(DATA_DIR, 'gamevault.db')
 UPLOAD_COVER = os.path.join(BASE_DIR, 'static', 'uploads', 'covers')
 UPLOAD_FILES = os.path.join(BASE_DIR, 'static', 'uploads', 'files')
 UPLOAD_AVATARS = os.path.join(BASE_DIR, 'static', 'uploads', 'avatars')
