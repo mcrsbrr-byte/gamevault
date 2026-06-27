@@ -57,7 +57,11 @@
   </div>
 
   <div class="admin-nav-group">
-    <a href="{{ url_for('index') }}" class="admin-nav-link">
+    <div class="admin-nav-label">Sistema</div>
+    <a href="{{ url_for('admin_settings') }}" class="admin-nav-link {% if request.endpoint=='admin_settings' %}active{% endif %}">
+      <i class="fas fa-cog"></i> Configurações
+    </a>
+    <a href="{{ url_for('index') }}" class="admin-nav-link" target="_blank">
       <i class="fas fa-external-link-alt"></i> Ver Loja
     </a>
   </div>

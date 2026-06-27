@@ -230,10 +230,13 @@
 </footer>
 
 <!-- WhatsApp Float -->
-<a href="https://wa.me/5500000000000?text=Olá!%20Preciso%20de%20ajuda%20no%20GameVault" 
-   class="whatsapp-float" target="_blank" title="Suporte via WhatsApp">
+{% if whatsapp_active == '1' %}
+<a href="https://wa.me/{{ whatsapp_number }}?text=Olá!%20Preciso%20de%20ajuda%20no%20GameVault"
+   class="whatsapp-float" target="_blank" title="Suporte via WhatsApp" id="whatsappFloat">
   <i class="fab fa-whatsapp"></i>
+  <span class="wa-tooltip">Precisa de ajuda?</span>
 </a>
+{% endif %}
 
 <!-- Welcome popup (for new visitors) -->
 <div id="welcomePopup" class="popup-overlay" style="display:none">

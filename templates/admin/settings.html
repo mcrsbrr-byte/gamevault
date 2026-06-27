@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Configurações — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-cog"></i> Configurações do Site</div>
+
+    <!-- WhatsApp -->
+    <div class="form-card form-card-wide" style="margin-bottom:2rem">
+      <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:0.5rem">
+        <i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp Flutuante
+      </h3>
+      <p style="color:var(--text3);font-size:0.875rem;margin-bottom:1.25rem">
+        Botão verde de suporte que aparece no canto inferior direito do site.
+      </p>
+      <form method="post">
+        <input type="hidden" name="action" value="whatsapp">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Número do WhatsApp</label>
+            <input type="text" name="whatsapp_number" class="form-input"
+              value="{{ settings.whatsapp_number }}"
+              placeholder="5511999999999 (com DDI e DDD, sem espaços)">
+            <p class="form-hint">Exemplo: 5511999998888 (55 = Brasil, 11 = DDD, restante = número)</p>
+          </div>
+          <div class="form-group" style="display:flex;align-items:center;gap:1rem;padding-top:1.5rem">
+            <label class="form-check" style="font-size:1rem">
+              <input type="checkbox" name="whatsapp_active" {% if settings.whatsapp_active=='1' %}checked{% endif %}>
+              <span>Mostrar botão no site</span>
+            </label>
+          </div>
+        </div>
+        <!-- Preview -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem">
+          <div style="width:48px;height:48px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;flex-shrink:0">
+            <i class="fab fa-whatsapp"></i>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:0.9rem">Prévia do botão</div>
+            <div style="font-size:0.8rem;color:var(--text3)">Número atual: +{{ settings.whatsapp_number }}</div>
+            <div style="font-size:0.8rem;color:{% if settings.whatsapp_active=='1' %}var(--success){% else %}var(--error){% endif %}">
+              {% if settings.whatsapp_active=='1' %}● Visível no site{% else %}● Oculto no site{% endif %}
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Salvar WhatsApp</button>
+      </form>
+    </div>
+
+    <!-- Email Marketing -->
+    <div class="form-card form-card-wide">
+      <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:0.5rem">
+        <i class="fas fa-envelope" style="color:var(--gold)"></i> Enviar Email em Massa
+      </h3>
+      <p style="color:var(--text3);font-size:0.875rem;margin-bottom:1.25rem">
+        Envie promoções, avisos e atualizações para seus clientes e assinantes.
+      </p>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+          <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--gold);font-weight:700">{{ total_users }}</div>
+          <div style="font-size:0.8rem;color:var(--text3)">Usuários cadastrados</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+          <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--gold);font-weight:700">{{ newsletter_count }}</div>
+          <div style="font-size:0.8rem;color:var(--text3)">Assinantes newsletter</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+          <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--gold);font-weight:700">{{ total_users + newsletter_count }}</div>
+          <div style="font-size:0.8rem;color:var(--text3)">Total (todos)</div>
+        </div>
+      </div>
+
+      <form method="post">
+        <input type="hidden" name="action" value="email_blast">
+
+        <div class="form-group">
+          <label class="form-label">Destinatários</label>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap">
+            <label class="form-check" style="padding:0.6rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.2s">
+              <input type="radio" name="target" value="all" checked> Todos (usuários + newsletter)
+            </label>
+            <label class="form-check" style="padding:0.6rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.2s">
+              <input type="radio" name="target" value="users"> Só usuários cadastrados
+            </label>
+            <label class="form-check" style="padding:0.6rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.2s">
+              <input type="radio" name="target" value="newsletter"> Só assinantes newsletter
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Assunto do Email *</label>
+          <input type="text" name="subject" class="form-input" required
+            placeholder="Ex: 🔥 Promoção especial — 20% OFF em todos os jogos!">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mensagem *</label>
+          <textarea name="body" class="form-textarea" rows="8" required
+            placeholder="Escreva a mensagem do email aqui...
+
+Exemplo:
+Olá gamer! 🎮
+
+Temos uma promoção especial para você!
+
+Use o cupom GAMER20 e ganhe 20% de desconto em qualquer jogo até domingo.
+
+Acesse agora: gamevaultstore.up.railway.app
+
+Abraços,
+Equipe GameVault"></textarea>
+          <p class="form-hint">O email será enviado com o design do GameVault automaticamente.</p>
+        </div>
+
+        <!-- Preview do template -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem">
+          <div style="font-size:0.8rem;color:var(--text3);margin-bottom:0.5rem"><i class="fas fa-eye"></i> Como o email vai aparecer:</div>
+          <div style="background:#0a0a0f;border-radius:var(--radius-sm);padding:1rem;font-size:0.85rem">
+            <div style="text-align:center;color:#f5c518;font-weight:700;font-size:1rem;margin-bottom:0.5rem">🎮 GameVault</div>
+            <div style="color:#f5c518;font-weight:700;margin-bottom:0.5rem">[Seu assunto aqui]</div>
+            <div style="color:#a0a0b8;font-size:0.8rem">[Sua mensagem aqui]</div>
+            <div style="border-top:1px solid #2a2a3a;margin-top:0.75rem;padding-top:0.5rem;text-align:center;color:#606078;font-size:0.75rem">
+              GameVault — gamevaultstore.up.railway.app
+            </div>
+          </div>
+        </div>
+
+        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:1rem;font-size:0.875rem;color:#fca5a5">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Atenção:</strong> Ao clicar em enviar, o email será disparado imediatamente para todos os destinatários selecionados.
+        </div>
+
+        <button type="submit" class="btn btn-gold btn-lg" onclick="return confirm('Confirmar envio do email em massa?')">
+          <i class="fas fa-paper-plane"></i> Enviar Email Agora
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

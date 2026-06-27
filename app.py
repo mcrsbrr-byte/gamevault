@@ -227,6 +227,11 @@ def init_db():
         sort_order INTEGER DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS site_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT DEFAULT ''
+    );
+
     CREATE TABLE IF NOT EXISTS emulators (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE NOT NULL,
@@ -341,10 +346,23 @@ def send_email(to, subject, body_html, body_text=''):
 
 
 # ─── Helpers for templates ─────────────────────────────────────────────────────
+def get_setting(key, default=''):
+    try:
+        db = get_db()
+        row = db.execute("SELECT value FROM site_settings WHERE key=?", (key,)).fetchone()
+        return row['value'] if row else default
+    except:
+        return default
+
+def save_setting(key, value):
+    db = get_db()
+    db.execute("INSERT OR REPLACE INTO site_settings(key,value) VALUES(?,?)", (key, value))
+    db.commit()
+
 @app.context_processor
 def inject_globals():
     db = get_db()
-    consoles = db.execute("SELECT * FROM consoles WHERE active=1 ORDER BY sort_order").fetchall()
+    consoles  = db.execute("SELECT * FROM consoles WHERE active=1 ORDER BY sort_order").fetchall()
     emulators = db.execute("SELECT * FROM emulators WHERE active=1 ORDER BY sort_order").fetchall()
     user = current_user()
     notif_count = 0
@@ -354,13 +372,18 @@ def inject_globals():
             "SELECT COUNT(*) FROM notifications WHERE user_id=? AND read=0",
             (user['id'],)
         ).fetchone()[0]
+    # Site settings
+    whatsapp_number = get_setting('whatsapp_number', '5500000000000')
+    whatsapp_active = get_setting('whatsapp_active', '1')
     return dict(
         consoles=consoles,
         emulators=emulators,
         current_user=user,
         notif_count=notif_count,
         cart_count=len(cart),
-        now=datetime.datetime.now()
+        now=datetime.datetime.now(),
+        whatsapp_number=whatsapp_number,
+        whatsapp_active=whatsapp_active,
     )
 
 
@@ -1338,6 +1361,67 @@ def admin_banners():
             db.commit()
     banners = db.execute("SELECT * FROM banners ORDER BY sort_order").fetchall()
     return render_template('admin/banners.html', banners=banners)
+
+
+@app.route('/admin/configuracoes', methods=['GET','POST'])
+@admin_required
+def admin_settings():
+    db = get_db()
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'whatsapp':
+            number = request.form.get('whatsapp_number','').strip().replace(' ','').replace('-','').replace('(','').replace(')','')
+            active = '1' if request.form.get('whatsapp_active') else '0'
+            save_setting('whatsapp_number', number)
+            save_setting('whatsapp_active', active)
+            flash('WhatsApp atualizado!', 'success')
+        elif action == 'email_blast':
+            subject  = request.form.get('subject','').strip()
+            body     = request.form.get('body','').strip()
+            target   = request.form.get('target', 'all')
+            if not subject or not body:
+                flash('Preencha assunto e mensagem.', 'error')
+            else:
+                # Get emails
+                if target == 'newsletter':
+                    emails_rows = db.execute("SELECT email FROM newsletter").fetchall()
+                elif target == 'users':
+                    emails_rows = db.execute("SELECT email FROM users WHERE is_admin=0 AND newsletter=1").fetchall()
+                else:
+                    # Both
+                    emails_rows = db.execute("SELECT email FROM users WHERE is_admin=0").fetchall()
+                    nl = db.execute("SELECT email FROM newsletter").fetchall()
+                    all_emails = list(set([r['email'] for r in emails_rows] + [r['email'] for r in nl]))
+                    emails_rows = [{'email': e} for e in all_emails]
+
+                sent = 0
+                failed = 0
+                html_body = f"""
+                <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0f;color:#e8e8f0;padding:2rem;border-radius:12px">
+                  <div style="text-align:center;margin-bottom:1.5rem">
+                    <h1 style="font-size:1.5rem;color:#f5c518">🎮 GameVault</h1>
+                  </div>
+                  <h2 style="color:#f5c518;margin-bottom:1rem">{subject}</h2>
+                  <div style="color:#a0a0b8;line-height:1.8;white-space:pre-line">{body}</div>
+                  <hr style="border-color:#2a2a3a;margin:1.5rem 0">
+                  <p style="font-size:0.8rem;color:#606078;text-align:center">
+                    GameVault — <a href="https://gamevaultstore.up.railway.app" style="color:#f5c518">gamevaultstore.up.railway.app</a>
+                  </p>
+                </div>"""
+                for row in emails_rows:
+                    ok = send_email(row['email'], f'[GameVault] {subject}', html_body)
+                    if ok: sent += 1
+                    else: failed += 1
+                flash(f'✅ Email enviado para {sent} destinatários! {f"({failed} falhas)" if failed else ""}', 'success')
+    settings = {
+        'whatsapp_number': get_setting('whatsapp_number', '5500000000000'),
+        'whatsapp_active': get_setting('whatsapp_active', '1'),
+    }
+    # Count targets
+    total_users = db.execute("SELECT COUNT(*) FROM users WHERE is_admin=0").fetchone()[0]
+    newsletter_count = db.execute("SELECT COUNT(*) FROM newsletter").fetchone()[0]
+    return render_template('admin/settings.html', settings=settings,
+        total_users=total_users, newsletter_count=newsletter_count)
 
 
 @app.route('/admin/notificar', methods=['GET','POST'])
