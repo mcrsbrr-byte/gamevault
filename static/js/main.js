@@ -36,11 +36,32 @@ window.addEventListener('scroll', () => {
 // ── Mobile menu ──────────────────────────────────────────
 const mobileBtn  = document.getElementById('mobileMenuBtn');
 const navLinks   = document.getElementById('navLinks');
+
+function updateMobileBtn() {
+  if (!mobileBtn) return;
+  if (window.innerWidth <= 900) {
+    mobileBtn.style.display = 'flex';
+  } else {
+    mobileBtn.style.display = 'none';
+    if (navLinks) navLinks.classList.remove('mobile-open');
+  }
+}
+updateMobileBtn();
+window.addEventListener('resize', updateMobileBtn);
+
 if (mobileBtn && navLinks) {
   mobileBtn.addEventListener('click', () => {
     navLinks.classList.toggle('mobile-open');
-    const icon = mobileBtn.querySelector('i');
+    const icon = document.getElementById('mobileMenuIcon');
     if (icon) icon.className = navLinks.classList.contains('mobile-open') ? 'fas fa-times' : 'fas fa-bars';
+  });
+  // Close menu when clicking a link
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('mobile-open');
+      const icon = document.getElementById('mobileMenuIcon');
+      if (icon) icon.className = 'fas fa-bars';
+    });
   });
 }
 
