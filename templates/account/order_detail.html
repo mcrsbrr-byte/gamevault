@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Pedido #{{ order.transaction_id[:8] }} — GameVault{% endblock %}
+{% block content %}
+<div class="container section" style="max-width:700px">
+  <div class="breadcrumb">
+    <a href="{{ url_for('my_account') }}">Minha Conta</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">Pedido #{{ order.transaction_id[:8] }}</span>
+  </div>
+
+  <div class="form-card form-card-wide">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h1 style="font-family:var(--font-heading);font-size:1.4rem;font-weight:700">Pedido #{{ order.transaction_id[:8] }}</h1>
+      <span class="order-status status-{{ order.payment_status }} " style="font-size:0.9rem;padding:0.35rem 0.9rem">
+        {% if order.payment_status=='approved' %}✅ Aprovado
+        {% elif order.payment_status=='pending' %}⏳ Pendente
+        {% else %}❌ Rejeitado{% endif %}
+      </span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;padding:1rem;background:var(--bg2);border-radius:var(--radius-sm)">
+      <div><div style="font-size:0.75rem;color:var(--text3)">Data do Pedido</div><div style="font-weight:600">{{ order.created_at[:16] }}</div></div>
+      <div><div style="font-size:0.75rem;color:var(--text3)">Pago em</div><div style="font-weight:600">{{ order.paid_at[:16] if order.paid_at else '—' }}</div></div>
+      <div><div style="font-size:0.75rem;color:var(--text3)">Método</div><div style="font-weight:600">{{ 'PIX' if order.payment_method=='pix' else 'Cartão' }}</div></div>
+      <div><div style="font-size:0.75rem;color:var(--text3)">ID Transação</div><div style="font-weight:600;font-family:monospace;font-size:0.8rem">{{ order.transaction_id }}</div></div>
+    </div>
+
+    <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:0.75rem">Itens</h3>
+    {% for item in items %}
+    <div style="display:flex;gap:1rem;padding:0.75rem 0;border-bottom:1px solid var(--border);align-items:center">
+      {% if item.game_cover %}
+      <div style="width:48px;height:64px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg3)">
+        <img src="{{ url_for('static', filename='uploads/covers/'+item.game_cover) }}" alt="" style="width:100%;height:100%;object-fit:cover">
+      </div>
+      {% endif %}
+      <div style="flex:1">
+        <div style="font-family:var(--font-heading);font-weight:700">{{ item.title }}</div>
+      </div>
+      <div style="font-family:var(--font-display);color:var(--gold);font-weight:700">R$ {{ '%.2f'|format(item.price)|replace('.',',') }}</div>
+      {% if order.payment_status=='approved' and item.game_id %}
+      <a href="{{ url_for('download_game', game_id=item.game_id) }}" class="btn btn-gold btn-sm">
+        <i class="fas fa-download"></i>
+      </a>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <span style="font-family:var(--font-heading);font-weight:700;font-size:1.1rem">Total</span>
+      <span style="font-family:var(--font-display);font-size:1.4rem;color:var(--gold);font-weight:700">R$ {{ '%.2f'|format(order.total)|replace('.',',') }}</span>
+    </div>
+
+    <a href="{{ url_for('my_account') }}" class="btn btn-outline btn-sm" style="margin-top:1.5rem">
+      <i class="fas fa-arrow-left"></i> Voltar para Minha Conta
+    </a>
+  </div>
+</div>
+{% endblock %}

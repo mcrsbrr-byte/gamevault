@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}{{ game.title }} — GameVault{% endblock %}
+{% block meta_desc %}Compre {{ game.title }} para {{ game.console_name }}. Arquivo {{ game.file_format }}, {{ game.file_size }}. A partir de R$ {{ '%.2f'|format(game.price)|replace('.',',') }}.{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="breadcrumb">
+    <a href="/">Início</a><span class="breadcrumb-sep">/</span>
+    <a href="{{ url_for('console_page', slug=game.console_slug) }}">{{ game.console_name }}</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ game.title }}</span>
+  </div>
+</div>
+
+<section class="game-hero">
+  <div class="container">
+    <div class="game-hero-grid">
+      <!-- Cover -->
+      <div>
+        <div class="game-cover-main">
+          {% if game.cover %}
+          <img src="{{ url_for('static', filename='uploads/covers/'+game.cover) }}" alt="{{ game.title }}" id="mainGameImg">
+          {% else %}
+          <div class="placeholder-cover" style="height:100%;aspect-ratio:3/4">
+            <div class="placeholder-icon" style="font-size:4rem">🎮</div>
+            <div class="placeholder-title" style="font-size:1.1rem">{{ game.title }}</div>
+          </div>
+          {% endif %}
+        </div>
+        {% if images %}
+        <div class="game-images-gallery">
+          {% if game.cover %}
+          <div class="game-thumb">
+            <img src="{{ url_for('static', filename='uploads/covers/'+game.cover) }}" alt="Capa">
+          </div>
+          {% endif %}
+          {% for img in images %}
+          <div class="game-thumb">
+            <img src="{{ url_for('static', filename='uploads/covers/'+img) }}" alt="Screenshot {{ loop.index }}">
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Info -->
+      <div>
+        {% if game.category_name %}<span class="meta-tag" style="margin-bottom:0.75rem;display:inline-block">{{ game.category_name }}</span>{% endif %}
+        <h1 class="game-detail-title">{{ game.title }}</h1>
+
+        {% if game.rating %}
+        <div class="game-rating-big">
+          <span class="stars-big">
+            {% for i in range(5) %}{% if i < game.rating|int %}⭐{% else %}☆{% endif %}{% endfor %}
+          </span>
+          <span class="rating-score">{{ game.rating }}</span>
+          <span class="rating-total">({{ game.rating_count }} avaliações)</span>
+        </div>
+        {% endif %}
+
+        <div class="game-detail-meta">
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Console</span>
+            <span class="detail-meta-value">{{ game.console_name }}</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Formato</span>
+            <span class="detail-meta-value" data-tooltip="Formato do arquivo para emulador">{{ game.file_format }}</span>
+          </div>
+          {% if game.file_size %}
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Tamanho</span>
+            <span class="detail-meta-value">{{ game.file_size }}</span>
+          </div>
+          {% endif %}
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Idioma</span>
+            <span class="detail-meta-value">{{ game.language }}</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Região</span>
+            <span class="detail-meta-value">{{ game.region }}</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Downloads</span>
+            <span class="detail-meta-value">{{ game.download_count }}</span>
+          </div>
+        </div>
+
+        {% if game.compatibility %}
+        <div style="margin-bottom:1.5rem">
+          <span style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Compatibilidade</span>
+          <div class="compat-list">
+            {% for c in game.compatibility.split(',') %}
+            <span class="compat-tag">{{ c.strip() }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Price & Actions -->
+        {% if purchased %}
+        <div class="game-price-box" style="border-color:rgba(34,197,94,0.3)">
+          <div style="display:flex;align-items:center;gap:0.75rem;color:var(--success);font-family:var(--font-heading);font-size:1.1rem;font-weight:700;margin-bottom:1rem">
+            <i class="fas fa-check-circle"></i> Jogo Adquirido
+          </div>
+          <a href="{{ url_for('download_game', game_id=game.id) }}" class="btn btn-success btn-full btn-lg">
+            <i class="fas fa-download"></i> Baixar Arquivo
+          </a>
+        </div>
+        {% elif game.is_free %}
+        <div class="game-price-box">
+          <div class="price-display">
+            <span class="price-big" style="color:var(--success)">GRÁTIS</span>
+          </div>
+          <div class="game-actions">
+            <a href="{{ url_for('download_game', game_id=game.id) }}" class="btn btn-success btn-lg">
+              <i class="fas fa-download"></i> Download Grátis
+            </a>
+          </div>
+        </div>
+        {% else %}
+        <div class="game-price-box">
+          <div class="price-display">
+            {% if game.original_price and game.original_price > game.price %}
+            <span class="price-old">R$ {{ '%.2f'|format(game.original_price)|replace('.',',') }}</span>
+            {% endif %}
+            <span class="price-big">R$ {{ '%.2f'|format(game.price)|replace('.',',') }}</span>
+          </div>
+          <div class="game-actions">
+            <button class="btn btn-gold btn-lg" onclick="addToCart({{ game.id }}, 'game', this)">
+              <i class="fas fa-shopping-cart"></i> Comprar Agora
+            </button>
+            <button class="btn btn-outline wish-btn-detail {% if in_wishlist %}active{% endif %}"
+              onclick="toggleWishlist({{ game.id }}, this)" title="Favoritar">
+              <i class="fa{% if in_wishlist %}s{% else %}r{% endif %} fa-heart"></i>
+              {% if in_wishlist %}Favoritado{% else %}Favoritar{% endif %}
+            </button>
+          </div>
+        </div>
+        {% endif %}
+
+        <p style="font-size:0.8rem;color:var(--text3);margin-top:0.75rem">
+          <i class="fas fa-shield-alt"></i> Pagamento seguro via PIX ou Cartão
+          <span style="margin:0 0.5rem">·</span>
+          <i class="fas fa-bolt"></i> Acesso imediato após aprovação
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container" style="padding-bottom:3rem">
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:2.5rem;align-items:start">
+    <div>
+      <!-- Description -->
+      {% if game.description %}
+      <div class="account-section">
+        <h2 class="account-section-title"><i class="fas fa-info-circle"></i> Sobre o Jogo</h2>
+        <p class="game-desc">{{ game.description }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Reviews -->
+      <div class="account-section">
+        <h2 class="account-section-title"><i class="fas fa-star"></i> Avaliações ({{ reviews|length }})</h2>
+
+        {% if current_user and not user_review and (purchased or game.is_free) %}
+        <div class="form-card form-card-wide" style="margin-bottom:1.5rem;padding:1.25rem">
+          <h4 style="margin-bottom:1rem;font-family:var(--font-heading)">Deixe sua avaliação</h4>
+          <form method="post" action="{{ url_for('add_review') }}">
+            <input type="hidden" name="game_id" value="{{ game.id }}">
+            <div class="form-group">
+              <label class="form-label">Nota</label>
+              <div class="star-input">
+                {% for i in [5,4,3,2,1] %}
+                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if i==5 %}checked{% endif %}>
+                <label for="star{{ i }}">★</label>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="form-group">
+              <textarea name="comment" class="form-textarea" placeholder="Sua opinião sobre o jogo..." rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-gold btn-sm">Enviar Avaliação</button>
+          </form>
+        </div>
+        {% endif %}
+
+        {% for review in reviews %}
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar">
+              {% if review.avatar %}
+              <img src="{{ url_for('static', filename='uploads/avatars/'+review.avatar) }}" alt="{{ review.user_name }}">
+              {% else %}
+              {{ review.user_name[0].upper() }}
+              {% endif %}
+            </div>
+            <div>
+              <div class="review-user">{{ review.user_name }}</div>
+              <div class="review-date">{{ review.created_at[:10] }}</div>
+            </div>
+            <div class="stars" style="margin-left:auto">
+              {% for i in range(review.rating) %}⭐{% endfor %}
+            </div>
+          </div>
+          {% if review.comment %}<p class="review-comment">{{ review.comment }}</p>{% endif %}
+        </div>
+        {% else %}
+        <p style="color:var(--text3)">Seja o primeiro a avaliar este jogo.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Related -->
+    <div>
+      <h3 style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;margin-bottom:1rem">
+        Jogos Relacionados
+      </h3>
+      {% for rel in related %}
+      <a href="{{ url_for('game_detail', slug=rel.slug) }}" style="display:flex;gap:0.75rem;padding:0.75rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:0.5rem;transition:border-color var(--transition)" class="rel-card">
+        <div style="width:50px;height:70px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg3)">
+          {% if rel.cover %}<img src="{{ url_for('static', filename='uploads/covers/'+rel.cover) }}" alt="{{ rel.title }}" style="width:100%;height:100%;object-fit:cover">{% endif %}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-heading);font-weight:700;font-size:0.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rel.title }}</div>
+          <div style="font-size:0.75rem;color:var(--text3);margin:0.2rem 0">{{ rel.console_name }}</div>
+          <div style="font-family:var(--font-display);color:var(--gold);font-size:0.9rem;font-weight:700">R$ {{ '%.2f'|format(rel.price)|replace('.',',') }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.rel-card:hover { border-color: rgba(245,197,24,0.3) !important; }
+.wish-btn-detail { gap: 0.5rem; }
+.wish-btn-detail.active { color: var(--error); border-color: var(--error); }
+</style>
+{% endblock %}

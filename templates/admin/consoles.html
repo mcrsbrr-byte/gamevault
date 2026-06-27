@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Consoles — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-tv"></i> Gerenciar Consoles</div>
+
+    <!-- Add Console -->
+    <div class="form-card form-card-wide" style="margin-bottom:2rem">
+      <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">Adicionar Console</h3>
+      <form method="post" enctype="multipart/form-data" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+        <input type="hidden" name="action" value="add">
+        <div class="form-group" style="flex:1;min-width:200px;margin:0">
+          <label class="form-label">Nome</label>
+          <input type="text" name="name" class="form-input" placeholder="Ex: PlayStation 4" required>
+        </div>
+        <div class="form-group" style="min-width:180px;margin:0">
+          <label class="form-label">Banner (opcional)</label>
+          <input type="file" name="banner" accept="image/*" class="form-input" style="padding:0.4rem">
+        </div>
+        <button type="submit" class="btn btn-gold"><i class="fas fa-plus"></i> Adicionar</button>
+      </form>
+    </div>
+
+    <!-- Console list -->
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>ID</th><th>Nome</th><th>Slug</th><th>Jogos</th><th>Ordem</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody>
+          {% for c in consoles %}
+          <tr>
+            <td style="color:var(--text3)">{{ c.id }}</td>
+            <td>
+              {% if c.banner %}
+              <img src="{{ url_for('static', filename='uploads/banners/'+c.banner) }}" alt="" style="height:32px;border-radius:4px;margin-right:0.5rem;vertical-align:middle">
+              {% endif %}
+              <strong>{{ c.name }}</strong>
+            </td>
+            <td><code style="font-size:0.8rem;color:var(--text3)">{{ c.slug }}</code></td>
+            <td style="color:var(--gold);font-weight:700">{{ c.game_count }}</td>
+            <td>{{ c.sort_order }}</td>
+            <td><span style="color:{% if c.active %}var(--success){% else %}var(--error){% endif %}">{% if c.active %}Ativo{% else %}Inativo{% endif %}</span></td>
+            <td>
+              <a href="{{ url_for('console_page', slug=c.slug) }}" class="btn btn-dark btn-xs" target="_blank"><i class="fas fa-eye"></i></a>
+              <button class="btn btn-outline btn-xs" onclick="openEditConsole({{ c.id }}, '{{ c.name }}', {{ c.sort_order }}, {{ c.active }})">
+                <i class="fas fa-edit"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Edit modal -->
+    <div id="editConsoleModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center">
+      <div class="form-card" style="width:100%;max-width:420px">
+        <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">Editar Console</h3>
+        <form method="post" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="edit">
+          <input type="hidden" name="cid" id="editCid">
+          <div class="form-group">
+            <label class="form-label">Nome</label>
+            <input type="text" name="name" id="editCName" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ordem de exibição</label>
+            <input type="number" name="sort_order" id="editCOrder" class="form-input" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Banner</label>
+            <input type="file" name="banner" accept="image/*" class="form-input" style="padding:0.4rem">
+          </div>
+          <div class="form-group">
+            <label class="form-check">
+              <input type="checkbox" name="active" id="editCActive"> Ativo
+            </label>
+          </div>
+          <div style="display:flex;gap:0.75rem">
+            <button type="submit" class="btn btn-gold">Salvar</button>
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('editConsoleModal').style.display='none'">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function openEditConsole(id, name, order, active) {
+  document.getElementById('editCid').value = id;
+  document.getElementById('editCName').value = name;
+  document.getElementById('editCOrder').value = order;
+  document.getElementById('editCActive').checked = !!active;
+  document.getElementById('editConsoleModal').style.display = 'flex';
+}
+</script>
+{% endblock %}

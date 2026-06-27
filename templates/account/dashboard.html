@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Minha Conta — GameVault{% endblock %}
+{% block content %}
+<div class="container section">
+  {% if request.args.get('success') %}
+  <div class="flash flash-success" style="margin-bottom:1.5rem">
+    <i class="fas fa-check-circle"></i> Compra realizada com sucesso! Seus jogos estão disponíveis abaixo.
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+  {% endif %}
+
+  <h1 class="section-title" style="margin-bottom:1.5rem">👤 Minha <span>Conta</span></h1>
+
+  <div class="account-grid">
+    <!-- Sidebar -->
+    <div class="account-sidebar">
+      <div class="sidebar-avatar">
+        {% if user.avatar %}
+        <img src="{{ url_for('static', filename='uploads/avatars/'+user.avatar) }}" alt="{{ user.name }}">
+        {% else %}{{ user.name[0].upper() }}{% endif %}
+      </div>
+      <div class="sidebar-name">{{ user.name }}</div>
+      <div class="sidebar-email">{{ user.email }}</div>
+      <div class="sidebar-points">
+        <div class="points-num">⭐ {{ user.points }}</div>
+        <div class="points-label">pontos de fidelidade</div>
+      </div>
+      <nav class="sidebar-menu">
+        <a href="#library" class="active"><i class="fas fa-gamepad"></i> Meus Jogos</a>
+        <a href="#orders"><i class="fas fa-receipt"></i> Pedidos</a>
+        <a href="#wishlist"><i class="fas fa-heart"></i> Favoritos</a>
+        <a href="#notifications"><i class="fas fa-bell"></i> Notificações</a>
+        <a href="{{ url_for('edit_profile') }}"><i class="fas fa-cog"></i> Editar Perfil</a>
+        {% if user.is_admin %}
+        <a href="{{ url_for('admin_index') }}" style="color:var(--gold)"><i class="fas fa-shield-alt"></i> Painel Admin</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" style="color:var(--error)"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      </nav>
+    </div>
+
+    <!-- Content -->
+    <div class="account-panel">
+
+      <!-- Library -->
+      <div class="account-section" id="library">
+        <h2 class="account-section-title"><i class="fas fa-gamepad"></i> Meus Jogos</h2>
+        {% if games %}
+        <div class="library-grid">
+          {% for game in games %}
+          <div class="library-card">
+            <div class="library-card-img">
+              {% if game.cover %}
+              <img src="{{ url_for('static', filename='uploads/covers/'+game.cover) }}" alt="{{ game.title }}">
+              {% else %}
+              <div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:2rem">🎮</div>
+              {% endif %}
+            </div>
+            <div class="library-card-info">
+              <div class="library-card-title">{{ game.title }}</div>
+              <span class="purchased-badge"><i class="fas fa-check"></i> Comprado</span>
+              <a href="{{ url_for('download_game', game_id=game.id) }}" class="btn btn-gold btn-sm btn-full" style="margin-top:0.5rem">
+                <i class="fas fa-download"></i> Baixar
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:3rem 0;color:var(--text3)">
+          <div style="font-size:3rem;margin-bottom:1rem">🎮</div>
+          <h3 style="font-family:var(--font-heading);margin-bottom:0.5rem">Biblioteca vazia</h3>
+          <p>Você ainda não comprou nenhum jogo.</p>
+          <a href="{{ url_for('all_games') }}" class="btn btn-gold" style="margin-top:1rem">Explorar Jogos</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Orders -->
+      <div class="account-section" id="orders">
+        <h2 class="account-section-title"><i class="fas fa-receipt"></i> Histórico de Pedidos</h2>
+        {% if orders %}
+        {% for order in orders %}
+        <a href="{{ url_for('order_detail', oid=order.id) }}" class="order-row" style="text-decoration:none">
+          <div class="order-id">#{{ order.transaction_id[:8] }}</div>
+          <div>
+            <div style="font-size:0.875rem;font-weight:600">{{ order.item_count }} item(s)</div>
+            <div style="font-size:0.75rem;color:var(--text3)">{{ order.created_at[:16] }}</div>
+          </div>
+          <span class="order-status status-{{ order.payment_status }}">
+            {% if order.payment_status=='approved' %}✅ Aprovado
+            {% elif order.payment_status=='pending' %}⏳ Pendente
+            {% else %}❌ Rejeitado{% endif %}
+          </span>
+          <div class="order-total">R$ {{ '%.2f'|format(order.total)|replace('.',',') }}</div>
+          <i class="fas fa-chevron-right" style="color:var(--text3);font-size:0.75rem"></i>
+        </a>
+        {% endfor %}
+        {% else %}
+        <p style="color:var(--text3)">Nenhum pedido ainda.</p>
+        {% endif %}
+      </div>
+
+      <!-- Wishlist -->
+      <div class="account-section" id="wishlist">
+        <h2 class="account-section-title"><i class="fas fa-heart"></i> Favoritos</h2>
+        {% if wishlist %}
+        <div class="library-grid">
+          {% for game in wishlist %}
+          <div class="library-card">
+            <div class="library-card-img">
+              {% if game.cover %}
+              <img src="{{ url_for('static', filename='uploads/covers/'+game.cover) }}" alt="{{ game.title }}">
+              {% else %}
+              <div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:2rem">🎮</div>
+              {% endif %}
+            </div>
+            <div class="library-card-info">
+              <div class="library-card-title">{{ game.title }}</div>
+              <div style="font-size:0.75rem;color:var(--text3);margin:0.2rem 0">{{ game.console_name }}</div>
+              <div style="font-family:var(--font-display);color:var(--gold);font-size:0.9rem;font-weight:700;margin-bottom:0.5rem">R$ {{ '%.2f'|format(game.price)|replace('.',',') }}</div>
+              <div style="display:flex;gap:0.4rem">
+                <a href="{{ url_for('game_detail', slug=game.slug) }}" class="btn btn-outline btn-sm" style="flex:1">Ver</a>
+                <button class="btn btn-gold btn-sm" onclick="addToCart({{ game.id }}, 'game', this)" style="flex:1">🛒</button>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="color:var(--text3)">Nenhum favorito ainda. Clique no ❤️ nos jogos para favoritar.</p>
+        {% endif %}
+      </div>
+
+      <!-- Notifications -->
+      <div class="account-section" id="notifications">
+        <h2 class="account-section-title"><i class="fas fa-bell"></i> Notificações</h2>
+        {% if notifications %}
+        {% for n in notifications %}
+        <div class="review-card" style="margin-bottom:0.75rem">
+          <div style="display:flex;justify-content:space-between;align-items:start">
+            <div>
+              <div style="font-weight:700;margin-bottom:0.3rem">{{ n.title }}</div>
+              <div style="font-size:0.875rem;color:var(--text2)">{{ n.message }}</div>
+              <div style="font-size:0.75rem;color:var(--text3);margin-top:0.3rem">{{ n.created_at[:16] }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color:var(--text3)">Nenhuma notificação.</p>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

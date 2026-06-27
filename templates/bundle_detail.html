@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ bundle.name }} — GameVault{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="breadcrumb"><a href="/">Início</a><span class="breadcrumb-sep">/</span><span class="breadcrumb-current">{{ bundle.name }}</span></div>
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:2rem;align-items:start">
+    <div>
+      <h1 class="section-title" style="margin-bottom:0.5rem">📦 {{ bundle.name }}</h1>
+      <p style="color:var(--text3);margin-bottom:2rem">{{ bundle.description }}</p>
+      <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">Jogos incluídos:</h3>
+      <div class="games-grid">{% for game in games %}{% include "partials/game_card.html" %}{% endfor %}</div>
+    </div>
+    <div class="order-summary" style="position:sticky;top:80px">
+      <div class="summary-title">{{ bundle.name }}</div>
+      <p style="color:var(--text3);font-size:0.875rem;margin-bottom:1.5rem">{{ bundle.description }}</p>
+      <div style="font-size:0.875rem;color:var(--text3);margin-bottom:0.5rem">{{ games|length }} jogos incluídos</div>
+      <div class="price-big" style="font-family:var(--font-display);font-size:2rem;color:var(--gold);font-weight:700;margin-bottom:1rem">
+        R$ {{ '%.2f'|format(bundle.price)|replace('.',',') }}
+      </div>
+      <button class="btn btn-gold btn-full btn-lg" onclick="addToCart({{ bundle.id }}, 'bundle', this)">
+        <i class="fas fa-shopping-cart"></i> Comprar Pacote
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}

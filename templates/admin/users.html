@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Usuários — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-users"></i> Clientes</div>
+    <form method="get" style="margin-bottom:1.5rem;display:flex;gap:0.75rem">
+      <input type="text" name="q" value="{{ q }}" class="form-input" placeholder="🔍 Buscar por nome ou email..." style="max-width:360px;margin:0">
+      <button type="submit" class="btn btn-outline btn-sm">Buscar</button>
+    </form>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>ID</th><th>Nome</th><th>Email</th><th>Pontos</th><th>Admin</th><th>Cadastro</th><th>Último login</th></tr></thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td style="color:var(--text3)">{{ u.id }}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:0.5rem">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;color:#000;flex-shrink:0">
+                  {{ u.name[0].upper() }}
+                </div>
+                {{ u.name }}
+              </div>
+            </td>
+            <td>{{ u.email }}</td>
+            <td style="color:var(--gold);font-weight:700">{{ u.points }}</td>
+            <td>{% if u.is_admin %}<span style="color:var(--gold)">⭐ Admin</span>{% else %}—{% endif %}</td>
+            <td style="font-size:0.8rem;color:var(--text3)">{{ u.created_at[:10] }}</td>
+            <td style="font-size:0.8rem;color:var(--text3)">{{ u.last_login[:10] if u.last_login else '—' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align:center;color:var(--text3)">Nenhum usuário.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

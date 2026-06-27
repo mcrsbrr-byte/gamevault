@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Categorias — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-tags"></i> Categorias</div>
+    <div class="form-card form-card-wide" style="margin-bottom:2rem">
+      <form method="post" style="display:flex;gap:1rem;align-items:flex-end">
+        <div class="form-group" style="flex:1;margin:0">
+          <label class="form-label">Nova Categoria</label>
+          <input type="text" name="name" class="form-input" placeholder="Ex: Aventura" required>
+        </div>
+        <button type="submit" class="btn btn-gold"><i class="fas fa-plus"></i> Adicionar</button>
+      </form>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>ID</th><th>Nome</th><th>Slug</th><th>Jogos</th></tr></thead>
+        <tbody>
+          {% for cat in categories %}
+          <tr>
+            <td style="color:var(--text3)">{{ cat.id }}</td>
+            <td><strong>{{ cat.name }}</strong></td>
+            <td><code style="font-size:0.8rem;color:var(--text3)">{{ cat.slug }}</code></td>
+            <td style="color:var(--gold);font-weight:700">{{ cat.game_count }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" style="text-align:center;color:var(--text3)">Nenhuma categoria.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

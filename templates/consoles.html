@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Consoles — GameVault{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="breadcrumb"><a href="/">Início</a><span class="breadcrumb-sep">/</span><span class="breadcrumb-current">Consoles</span></div>
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">🕹️ Escolha seu <span>Console</span></h1>
+      <p class="section-subtitle">Navegue pelo catálogo de jogos por plataforma</p>
+    </div>
+  </div>
+  <div class="consoles-grid">
+    {% for console in consoles %}
+    <a href="{{ url_for('console_page', slug=console.slug) }}" class="console-card reveal" style="aspect-ratio:4/3">
+      <div class="console-card-bg">
+        {% if console.banner %}<img src="{{ url_for('static', filename='uploads/banners/'+console.banner) }}" alt="{{ console.name }}">{% endif %}
+      </div>
+      <div class="console-card-info">
+        <div class="console-name">{{ console.name }}</div>
+        <div class="console-count">{{ console.game_count or 0 }} jogos disponíveis</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

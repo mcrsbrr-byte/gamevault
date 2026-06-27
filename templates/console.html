@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ console.name }} — GameVault{% endblock %}
+{% block content %}
+
+{% if console.banner %}
+<div style="height:220px;overflow:hidden;position:relative;background:var(--bg2)">
+  <img src="{{ url_for('static', filename='uploads/banners/'+console.banner) }}" alt="{{ console.name }}"
+    style="width:100%;height:100%;object-fit:cover;opacity:0.4">
+  <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 60%);display:flex;align-items:flex-end;padding:2rem 3rem">
+    <div>
+      <h1 style="font-family:var(--font-heading);font-size:2.5rem;font-weight:700">{{ console.name }}</h1>
+      <p style="color:var(--text3)">{{ total }} jogos disponíveis</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="container" style="padding-top:1.5rem;padding-bottom:3rem">
+  <div class="breadcrumb">
+    <a href="/">Início</a><span class="breadcrumb-sep">/</span>
+    <a href="{{ url_for('consoles_page') }}">Consoles</a><span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ console.name }}</span>
+  </div>
+
+  {% if not console.banner %}
+  <h1 style="font-family:var(--font-heading);font-size:2rem;font-weight:700;margin-bottom:0.25rem">{{ console.name }}</h1>
+  <p style="color:var(--text3);margin-bottom:1.5rem">{{ total }} jogos disponíveis</p>
+  {% endif %}
+
+  <!-- Search + Sort -->
+  <form method="get" class="filter-bar" id="filterForm">
+    <input type="text" name="q" value="{{ search }}" placeholder="🔍 Buscar em {{ console.name }}..."
+      class="form-input" style="max-width:280px;margin:0">
+    
+    <button type="submit" class="filter-btn active">Todos</button>
+    {% for cat in categories %}
+    <a href="?cat={{ cat.slug }}&sort={{ sort }}" class="filter-btn {% if cat_filter==cat.slug %}active{% endif %}">
+      {{ cat.name }}
+    </a>
+    {% endfor %}
+
+    <select name="sort" class="sort-select" onchange="this.form.submit()">
+      <option value="bestseller" {% if sort=='bestseller' %}selected{% endif %}>Mais Vendidos</option>
+      <option value="newest"     {% if sort=='newest' %}selected{% endif %}>Mais Recentes</option>
+      <option value="az"         {% if sort=='az' %}selected{% endif %}>A-Z</option>
+      <option value="price_asc"  {% if sort=='price_asc' %}selected{% endif %}>Menor Preço</option>
+      <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>Maior Preço</option>
+    </select>
+    <input type="hidden" name="cat" value="{{ cat_filter }}">
+  </form>
+
+  {% if games %}
+  <div class="games-grid games-grid-lg">
+    {% for game in games %}{% include "partials/game_card.html" %}{% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if pages > 1 %}
+  <div class="pagination" style="margin-top:2rem">
+    {% if page > 1 %}
+    <a href="?page={{ page-1 }}&sort={{ sort }}&cat={{ cat_filter }}&q={{ search }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+    {% endif %}
+    {% for p in range(1, pages+1) %}
+      {% if p == page %}
+      <span class="page-btn active">{{ p }}</span>
+      {% elif p == 1 or p == pages or (p >= page-2 and p <= page+2) %}
+      <a href="?page={{ p }}&sort={{ sort }}&cat={{ cat_filter }}&q={{ search }}" class="page-btn">{{ p }}</a>
+      {% elif p == page-3 or p == page+3 %}
+      <span class="page-btn disabled">…</span>
+      {% endif %}
+    {% endfor %}
+    {% if page < pages %}
+    <a href="?page={{ page+1 }}&sort={{ sort }}&cat={{ cat_filter }}&q={{ search }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div style="text-align:center;padding:4rem 0;color:var(--text3)">
+    <div style="font-size:3rem;margin-bottom:1rem">🎮</div>
+    <h3 style="font-family:var(--font-heading);margin-bottom:0.5rem">Nenhum jogo encontrado</h3>
+    <p>Tente outros filtros ou <a href="{{ url_for('console_page', slug=console.slug) }}" style="color:var(--gold)">limpar filtros</a>.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

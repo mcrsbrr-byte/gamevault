@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Entrar — GameVault{% endblock %}
+{% block content %}
+<div class="container" style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem">
+  <div class="form-card" style="width:100%">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem">🎮</div>
+      <h1 class="form-title">Entrar no GameVault</h1>
+      <p class="form-subtitle">Acesse sua conta e baixe seus jogos</p>
+    </div>
+
+    <form method="post">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" name="email" class="form-input" placeholder="seu@email.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <div style="position:relative">
+          <input type="password" name="password" id="loginPwd" class="form-input" placeholder="Sua senha" required style="padding-right:2.5rem">
+          <button type="button" onclick="togglePwd('loginPwd')" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-gold btn-full" style="margin-top:0.5rem">
+        <i class="fas fa-sign-in-alt"></i> Entrar
+      </button>
+    </form>
+
+    <div class="form-divider">ou</div>
+    <a href="{{ url_for('register') }}" class="btn btn-outline btn-full">
+      <i class="fas fa-user-plus"></i> Criar conta grátis
+    </a>
+
+    <p style="text-align:center;font-size:0.8rem;color:var(--text3);margin-top:1.5rem">
+      Ao entrar você concorda com nossos termos de uso.
+    </p>
+  </div>
+</div>
+<script>
+function togglePwd(id) {
+  const inp = document.getElementById(id);
+  const icon = document.getElementById('eyeIcon');
+  if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+  else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
+}
+</script>
+{% endblock %}

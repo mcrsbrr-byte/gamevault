@@ -1,0 +1,61 @@
+<div class="admin-sidebar">
+  <div class="admin-sidebar-logo">🎮 ADMIN</div>
+
+  <div class="admin-nav-group">
+    <div class="admin-nav-label">Principal</div>
+    <a href="{{ url_for('admin_index') }}" class="admin-nav-link {% if request.endpoint=='admin_index' %}active{% endif %}">
+      <i class="fas fa-chart-line"></i> Dashboard
+    </a>
+  </div>
+
+  <div class="admin-nav-group">
+    <div class="admin-nav-label">Catálogo</div>
+    <a href="{{ url_for('admin_game_new') }}" class="admin-nav-link">
+      <i class="fas fa-plus-circle"></i> Novo Jogo
+    </a>
+    <a href="{{ url_for('admin_games') }}" class="admin-nav-link {% if request.endpoint in ['admin_games','admin_game_edit'] %}active{% endif %}">
+      <i class="fas fa-gamepad"></i> Jogos
+    </a>
+    <a href="{{ url_for('admin_consoles') }}" class="admin-nav-link {% if request.endpoint=='admin_consoles' %}active{% endif %}">
+      <i class="fas fa-tv"></i> Consoles
+    </a>
+    <a href="{{ url_for('admin_categories') }}" class="admin-nav-link {% if request.endpoint=='admin_categories' %}active{% endif %}">
+      <i class="fas fa-tags"></i> Categorias
+    </a>
+    <a href="{{ url_for('admin_bundles') }}" class="admin-nav-link {% if request.endpoint=='admin_bundles' %}active{% endif %}">
+      <i class="fas fa-box"></i> Pacotes
+    </a>
+  </div>
+
+  <div class="admin-nav-group">
+    <div class="admin-nav-label">Vendas</div>
+    <a href="{{ url_for('admin_orders') }}" class="admin-nav-link {% if request.endpoint=='admin_orders' %}active{% endif %}">
+      <i class="fas fa-receipt"></i> Pedidos
+    </a>
+    <a href="{{ url_for('admin_users') }}" class="admin-nav-link {% if request.endpoint=='admin_users' %}active{% endif %}">
+      <i class="fas fa-users"></i> Clientes
+    </a>
+    <a href="{{ url_for('admin_coupons') }}" class="admin-nav-link {% if request.endpoint=='admin_coupons' %}active{% endif %}">
+      <i class="fas fa-ticket-alt"></i> Cupons
+    </a>
+    <a href="{{ url_for('admin_report') }}" class="admin-nav-link">
+      <i class="fas fa-file-csv"></i> Relatório CSV
+    </a>
+  </div>
+
+  <div class="admin-nav-group">
+    <div class="admin-nav-label">Visual</div>
+    <a href="{{ url_for('admin_banners') }}" class="admin-nav-link {% if request.endpoint=='admin_banners' %}active{% endif %}">
+      <i class="fas fa-image"></i> Banners
+    </a>
+    <a href="{{ url_for('admin_notify') }}" class="admin-nav-link {% if request.endpoint=='admin_notify' %}active{% endif %}">
+      <i class="fas fa-bell"></i> Notificações
+    </a>
+  </div>
+
+  <div class="admin-nav-group">
+    <a href="{{ url_for('index') }}" class="admin-nav-link">
+      <i class="fas fa-external-link-alt"></i> Ver Loja
+    </a>
+  </div>
+</div>

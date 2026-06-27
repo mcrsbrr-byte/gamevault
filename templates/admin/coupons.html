@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Cupons — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-ticket-alt"></i> Gerenciar Cupons</div>
+
+    <div class="form-card form-card-wide" style="margin-bottom:2rem">
+      <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">Novo Cupom</h3>
+      <form method="post">
+        <input type="hidden" name="action" value="add">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Código</label>
+            <input type="text" name="code" class="form-input" placeholder="GAMER10" required style="text-transform:uppercase">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Tipo</label>
+            <select name="discount_type" class="form-select">
+              <option value="percent">Percentual (%)</option>
+              <option value="fixed">Fixo (R$)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Valor do Desconto</label>
+            <input type="number" name="discount_value" class="form-input" step="0.01" min="0" placeholder="10" required>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Valor Mínimo (R$)</label>
+            <input type="number" name="min_value" class="form-input" step="0.01" min="0" value="0">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Máx. de Usos</label>
+            <input type="number" name="max_uses" class="form-input" min="1" value="100">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Expira em (opcional)</label>
+            <input type="datetime-local" name="expires_at" class="form-input">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-gold" style="margin-top:1rem"><i class="fas fa-plus"></i> Criar Cupom</button>
+      </form>
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Código</th><th>Tipo</th><th>Desconto</th><th>Mín.</th><th>Usos</th><th>Expira</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          {% for c in coupons %}
+          <tr>
+            <td><strong style="font-family:monospace;color:var(--gold)">{{ c.code }}</strong></td>
+            <td>{{ 'Percentual' if c.discount_type=='percent' else 'Fixo' }}</td>
+            <td style="color:var(--success);font-weight:700">
+              {% if c.discount_type=='percent' %}{{ c.discount_value }}%{% else %}R$ {{ '%.2f'|format(c.discount_value)|replace('.',',') }}{% endif %}
+            </td>
+            <td>{% if c.min_value %}R$ {{ '%.2f'|format(c.min_value)|replace('.',',') }}{% else %}—{% endif %}</td>
+            <td>{{ c.used_count }}/{{ c.max_uses }}</td>
+            <td style="font-size:0.8rem;color:var(--text3)">{{ c.expires_at[:10] if c.expires_at else 'Sem limite' }}</td>
+            <td><span style="color:{% if c.active %}var(--success){% else %}var(--error){% endif %}">{% if c.active %}Ativo{% else %}Inativo{% endif %}</span></td>
+            <td>
+              <form method="post" style="display:inline">
+                <input type="hidden" name="action" value="toggle">
+                <input type="hidden" name="cid" value="{{ c.id }}">
+                <button type="submit" class="btn btn-{% if c.active %}danger{% else %}success{% endif %} btn-xs">
+                  {% if c.active %}Desativar{% else %}Ativar{% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" style="text-align:center;color:var(--text3)">Nenhum cupom.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

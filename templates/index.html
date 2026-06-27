@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}GameVault — Loja de Jogos Clássicos Digitais{% endblock %}
+
+{% block content %}
+<!-- Hero Slider -->
+<section class="hero-slider">
+  <div class="slider-track">
+    {% for banner in banners %}
+    <div class="slide">
+      <div class="slide-bg">
+        {% if banner.image %}<img src="{{ url_for('static', filename='uploads/banners/'+banner.image) }}" alt="{{ banner.title }}">{% endif %}
+      </div>
+      <div class="slide-content">
+        <div class="slide-eyebrow">🎮 GameVault</div>
+        <h1 class="slide-title">{{ banner.title }}</h1>
+        <p class="slide-desc">{{ banner.subtitle }}</p>
+        <div class="slide-actions">
+          <a href="{{ banner.link or url_for('all_games') }}" class="btn btn-gold btn-lg">
+            <i class="fas fa-shopping-cart"></i> Explorar Jogos
+          </a>
+          <a href="{{ url_for('consoles_page') }}" class="btn btn-outline btn-lg">Ver Consoles</a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="slide">
+      <div class="slide-bg"></div>
+      <div class="slide-content">
+        <div class="slide-eyebrow">🎮 Bem-vindo ao</div>
+        <h1 class="slide-title">Game<span style="color:var(--gold)">Vault</span></h1>
+        <p class="slide-desc">Centenas de jogos clássicos em formato digital. PS2, PS3, PSP, Xbox, Wii, 3DS e muito mais!</p>
+        <div class="slide-actions">
+          <a href="{{ url_for('all_games') }}" class="btn btn-gold btn-lg"><i class="fas fa-gamepad"></i> Ver Jogos</a>
+          <a href="{{ url_for('register') }}" class="btn btn-outline btn-lg">Criar Conta Grátis</a>
+        </div>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-bg"></div>
+      <div class="slide-content">
+        <div class="slide-eyebrow">🔥 Promoção</div>
+        <h1 class="slide-title">Jogos a partir de <span style="color:var(--gold)">R$ 9,90</span></h1>
+        <p class="slide-desc">Use o cupom <strong style="color:var(--gold)">GAMER10</strong> e ganhe 10% de desconto na sua compra!</p>
+        <div class="slide-actions">
+          <a href="{{ url_for('bestsellers') }}" class="btn btn-gold btn-lg"><i class="fas fa-trophy"></i> Mais Vendidos</a>
+          <a href="{{ url_for('free_games') }}" class="btn btn-outline btn-lg"><i class="fas fa-gift"></i> Jogos Grátis</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <button class="slider-prev"><i class="fas fa-chevron-left"></i></button>
+  <button class="slider-next"><i class="fas fa-chevron-right"></i></button>
+  <div class="slider-dots">
+    {% set slide_count = banners|length if banners else 2 %}
+    {% for i in range(slide_count) %}
+    <div class="slider-dot {% if loop.first %}active{% endif %}"></div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">{{ stats.games }}+</div>
+        <div class="stat-label">Jogos Disponíveis</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">7</div>
+        <div class="stat-label">Consoles</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ stats.users }}+</div>
+        <div class="stat-label">Jogadores</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ stats.orders }}+</div>
+        <div class="stat-label">Downloads Realizados</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">⭐ 4.9</div>
+        <div class="stat-label">Avaliação Média</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Consoles -->
+  <section class="section-sm">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">🕹️ Escolha seu <span>Console</span></h2>
+        <p class="section-subtitle">Selecione a plataforma e encontre seus jogos favoritos</p>
+      </div>
+      <a href="{{ url_for('consoles_page') }}" class="see-all">Ver todos <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="consoles-grid reveal">
+      {% for console in consoles %}
+      <a href="{{ url_for('console_page', slug=console.slug) }}" class="console-card">
+        <div class="console-card-bg">
+          {% if console.banner %}
+          <img src="{{ url_for('static', filename='uploads/banners/'+console.banner) }}" alt="{{ console.name }}">
+          {% endif %}
+        </div>
+        <div class="console-card-info">
+          <div class="console-name">{{ console.name }}</div>
+          <div class="console-count">{% if console.game_count %}{{ console.game_count }} jogos{% else %}Em breve{% endif %}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Featured / Mais Vendidos -->
+  {% if bestsellers %}
+  <section class="section-sm">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">🏆 Mais <span>Vendidos</span></h2>
+        <p class="section-subtitle">Os jogos mais amados da comunidade GameVault</p>
+      </div>
+      <a href="{{ url_for('bestsellers') }}" class="see-all">Ver todos <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="scroll-row">
+      {% for game in bestsellers %}
+      {% include "partials/game_card.html" %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Bundles -->
+  {% if bundles %}
+  <section class="section-sm">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">📦 <span>Pacotes</span> Especiais</h2>
+        <p class="section-subtitle">Compre mais, economize mais</p>
+      </div>
+    </div>
+    <div class="games-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px,1fr))">
+      {% for bundle in bundles %}
+      <a href="{{ url_for('bundle_detail', bid=bundle.id) }}" class="bundle-card reveal">
+        <div class="bundle-name">{{ bundle.name }}</div>
+        <div class="bundle-desc">{{ bundle.description }}</div>
+        <div class="bundle-price">R$ {{ '%.2f'|format(bundle.price)|replace('.',',') }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Novidades -->
+  {% if newest %}
+  <section class="section-sm">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">🆕 Recém <span>Adicionados</span></h2>
+        <p class="section-subtitle">Confira as últimas adições ao catálogo</p>
+      </div>
+      <a href="{{ url_for('novidades') }}" class="see-all">Ver todos <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="scroll-row">
+      {% for game in newest %}
+      {% include "partials/game_card.html" %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Free Games -->
+  {% if free_games %}
+  <section class="section-sm">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">🎁 Jogos <span>Gratuitos</span></h2>
+        <p class="section-subtitle">Download gratuito, sem custo algum</p>
+      </div>
+      <a href="{{ url_for('free_games') }}" class="see-all">Ver todos <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="games-grid reveal">
+      {% for game in free_games %}
+      {% include "partials/game_card.html" %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Why choose us -->
+  <section class="section-sm reveal">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Por que escolher o <span>GameVault</span>?</h2>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem">
+      {% set features = [
+        ('⚡','Download Imediato','Após a compra, acesso instantâneo ao arquivo do jogo.'),
+        ('🔒','Pagamento Seguro','PIX e cartão com aprovação automática.'),
+        ('🎮','Emuladores Compatíveis','Arquivos prontos para rodar nos principais emuladores.'),
+        ('⭐','Jogos Originais','Apenas arquivos de alta qualidade e bem testados.'),
+        ('💬','Suporte via WhatsApp','Atendimento rápido para qualquer dúvida.'),
+        ('🏆','+600 Jogos','O maior catálogo de jogos clássicos do Brasil.'),
+      ] %}
+      {% for icon, title, desc in features %}
+      <div class="stat-card reveal">
+        <div class="stat-card-icon gold" style="font-size:1.6rem">{{ icon }}</div>
+        <div>
+          <div class="stat-card-value" style="font-size:1rem;font-family:var(--font-heading)">{{ title }}</div>
+          <div class="stat-card-label" style="font-size:0.8rem;margin-top:0.2rem">{{ desc }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+</div>
+{% endblock %}

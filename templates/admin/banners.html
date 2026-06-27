@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Banners — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-image"></i> Banners do Slider</div>
+
+    <div class="form-card form-card-wide" style="margin-bottom:2rem">
+      <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">Novo Banner</h3>
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="add">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Título</label><input type="text" name="title" class="form-input" required placeholder="Ex: Promoção da Semana"></div>
+          <div class="form-group"><label class="form-label">Subtítulo</label><input type="text" name="subtitle" class="form-input" placeholder="Texto secundário"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Link (URL)</label><input type="text" name="link" class="form-input" placeholder="/console/playstation-2"></div>
+          <div class="form-group"><label class="form-label">Ordem</label><input type="number" name="sort_order" class="form-input" value="0" min="0"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Imagem (1200x450px recomendado)</label>
+          <input type="file" name="image" accept="image/*" class="form-input" style="padding:0.4rem">
+        </div>
+        <button type="submit" class="btn btn-gold"><i class="fas fa-plus"></i> Adicionar Banner</button>
+      </form>
+    </div>
+
+    <div style="display:grid;gap:1rem">
+      {% for b in banners %}
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;display:flex;gap:1rem;align-items:center">
+        {% if b.image %}
+        <img src="{{ url_for('static', filename='uploads/banners/'+b.image) }}" alt="" style="height:80px;border-radius:var(--radius-sm);object-fit:cover;width:200px">
+        {% else %}
+        <div style="width:200px;height:80px;background:var(--bg3);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text3)">Sem imagem</div>
+        {% endif %}
+        <div style="flex:1">
+          <div style="font-family:var(--font-heading);font-weight:700">{{ b.title }}</div>
+          <div style="font-size:0.875rem;color:var(--text3)">{{ b.subtitle }}</div>
+          <div style="font-size:0.8rem;color:var(--text3)">Link: {{ b.link or '/' }} · Ordem: {{ b.sort_order }}</div>
+        </div>
+        <form method="post">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="bid" value="{{ b.id }}">
+          <button type="submit" class="btn btn-danger btn-sm" data-confirm="Deletar banner '{{ b.title }}'?">
+            <i class="fas fa-trash"></i>
+          </button>
+        </form>
+      </div>
+      {% else %}
+      <p style="color:var(--text3)">Nenhum banner cadastrado.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

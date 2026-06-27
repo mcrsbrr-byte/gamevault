@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — GameVault{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">{{ title }}</h1>
+      <p class="section-subtitle">{{ subtitle }}</p>
+    </div>
+  </div>
+  {% if games %}
+  <div class="games-grid games-grid-lg">{% for game in games %}{% include "partials/game_card.html" %}{% endfor %}</div>
+  {% else %}
+  <div style="text-align:center;padding:4rem 0;color:var(--text3)">
+    <div style="font-size:3rem;margin-bottom:1rem">🎮</div>
+    <h3 style="font-family:var(--font-heading)">Nenhum jogo aqui ainda</h3>
+    <p><a href="{{ url_for('all_games') }}" style="color:var(--gold)">Ver todos os jogos</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Pagamento — GameVault{% endblock %}
+{% block content %}
+<div class="container section" style="max-width:600px">
+  <h1 class="section-title" style="margin-bottom:1.5rem;text-align:center">💳 <span>Pagamento</span></h1>
+
+  <div class="form-card">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text3);margin-bottom:0.3rem">Pedido #{{ order.transaction_id[:8] }}</div>
+      <div style="font-family:var(--font-display);font-size:2.5rem;color:var(--gold);font-weight:700">
+        R$ {{ '%.2f'|format(order.total)|replace('.',',') }}
+      </div>
+    </div>
+
+    {% if order.payment_method == 'pix' %}
+    <div class="pix-box">
+      <div style="font-size:2rem;margin-bottom:0.75rem">🔵</div>
+      <h3 style="font-family:var(--font-heading);margin-bottom:0.5rem">Pagamento via PIX</h3>
+      <p style="color:var(--text3);font-size:0.875rem;margin-bottom:1rem">Copie o código abaixo e pague no seu banco</p>
+
+      <div class="pix-code" id="pixCode">
+        00020126580014BR.GOV.BCB.PIX0136mcr.sbrr@gmail.com5204000053039865406{{ '%.2f'|format(order.total) }}5802BR5913GAMEVAULT6009SAO PAULO62070503***6304{{ order.transaction_id[:4].upper() }}
+      </div>
+
+      <button class="btn btn-outline btn-sm" onclick="copyPix()" style="margin-bottom:1rem">
+        <i class="fas fa-copy"></i> Copiar Código PIX
+      </button>
+
+      <p style="font-size:0.8rem;color:var(--text3)">O código expira em:</p>
+      <div class="pix-timer" id="pixTimer">15:00</div>
+    </div>
+    {% else %}
+    <div class="pix-box">
+      <div style="font-size:2rem;margin-bottom:0.75rem">💳</div>
+      <h3 style="font-family:var(--font-heading);margin-bottom:0.5rem">Pagamento com Cartão</h3>
+      <p style="color:var(--text3);font-size:0.875rem">Processando seu pagamento com segurança...</p>
+    </div>
+    {% endif %}
+
+    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <p style="text-align:center;color:var(--text3);font-size:0.875rem;margin-bottom:1rem">
+        Após o pagamento, clique no botão abaixo para confirmar:
+      </p>
+      <button id="confirmPayBtn" class="btn btn-gold btn-full btn-lg"
+        onclick="confirmPayment('{{ order.transaction_id }}')">
+        <i class="fas fa-check"></i> Já Paguei — Confirmar Pagamento
+      </button>
+      <p style="text-align:center;font-size:0.75rem;color:var(--text3);margin-top:0.75rem">
+        <i class="fas fa-shield-alt"></i> Acesso liberado automaticamente após confirmação
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

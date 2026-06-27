@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Jogos — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-gamepad"></i> Gerenciar Jogos</div>
+
+    <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+      <a href="{{ url_for('admin_game_new') }}" class="btn btn-gold"><i class="fas fa-plus"></i> Novo Jogo</a>
+      <form method="get" style="display:flex;gap:0.5rem;flex:1">
+        <input type="text" name="q" value="{{ q }}" class="form-input" placeholder="🔍 Buscar jogo..." style="max-width:280px;margin:0">
+        <select name="console" class="sort-select">
+          <option value="">Todos consoles</option>
+          {% for c in consoles %}
+          <option value="{{ c.id }}" {% if console_id==c.id|string %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline btn-sm">Filtrar</button>
+      </form>
+      <span style="color:var(--text3);font-size:0.875rem;align-self:center">{{ total }} jogos</span>
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Capa</th><th>Título</th><th>Console</th>
+            <th>Preço</th><th>Vendas</th><th>Status</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for game in games %}
+          <tr>
+            <td style="color:var(--text3);font-size:0.8rem">{{ game.id }}</td>
+            <td>
+              {% if game.cover %}
+              <img src="{{ url_for('static', filename='uploads/covers/'+game.cover) }}" alt="" style="width:36px;height:48px;object-fit:cover;border-radius:4px">
+              {% else %}
+              <div style="width:36px;height:48px;background:var(--bg3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.1rem">🎮</div>
+              {% endif %}
+            </td>
+            <td>
+              <div style="font-weight:600">{{ game.title }}</div>
+              <div style="font-size:0.75rem;color:var(--text3)">{{ game.file_format }} · {{ game.file_size }}</div>
+            </td>
+            <td><span class="meta-tag console" style="font-size:0.75rem">{{ game.console_name }}</span></td>
+            <td>
+              <div style="color:var(--gold);font-weight:700">R$ {{ '%.2f'|format(game.price)|replace('.',',') }}</div>
+              {% if game.original_price and game.original_price > game.price %}
+              <div style="font-size:0.75rem;color:var(--text3);text-decoration:line-through">R$ {{ '%.2f'|format(game.original_price)|replace('.',',') }}</div>
+              {% endif %}
+            </td>
+            <td style="text-align:center">{{ game.sales_count }}</td>
+            <td>
+              {% if game.is_active %}
+              <span style="color:var(--success);font-size:0.8rem">● Ativo</span>
+              {% else %}
+              <span style="color:var(--error);font-size:0.8rem">● Inativo</span>
+              {% endif %}
+              {% if game.is_featured %}<div style="font-size:0.7rem;color:var(--gold)">⭐ Destaque</div>{% endif %}
+              {% if game.is_free %}<div style="font-size:0.7rem;color:var(--success)">🎁 Grátis</div>{% endif %}
+            </td>
+            <td>
+              <div class="admin-actions">
+                <a href="{{ url_for('game_detail', slug=game.slug) }}" class="btn btn-dark btn-xs" title="Ver" target="_blank"><i class="fas fa-eye"></i></a>
+                <a href="{{ url_for('admin_game_edit', gid=game.id) }}" class="btn btn-outline btn-xs"><i class="fas fa-edit"></i></a>
+                <form method="post" action="{{ url_for('admin_game_delete', gid=game.id) }}" style="display:inline">
+                  <button type="submit" class="btn btn-danger btn-xs" data-confirm="Desativar '{{ game.title }}'?"><i class="fas fa-ban"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" style="text-align:center;color:var(--text3);padding:2rem">Nenhum jogo encontrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if pages > 1 %}
+    <div class="pagination" style="margin-top:1rem">
+      {% if page > 1 %}<a href="?page={{ page-1 }}&q={{ q }}&console={{ console_id }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>{% endif %}
+      {% for p in range(1, pages+1) %}
+        {% if p==page %}<span class="page-btn active">{{ p }}</span>
+        {% elif p==1 or p==pages or (p>=page-2 and p<=page+2) %}<a href="?page={{ p }}&q={{ q }}&console={{ console_id }}" class="page-btn">{{ p }}</a>
+        {% elif p==page-3 or p==page+3 %}<span class="page-btn disabled">…</span>{% endif %}
+      {% endfor %}
+      {% if page < pages %}<a href="?page={{ page+1 }}&q={{ q }}&console={{ console_id }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+<div class="game-card reveal">
+  <div class="game-card-img">
+    {% if game.cover %}
+    <img src="{{ url_for('static', filename='uploads/covers/'+game.cover) }}" alt="{{ game.title }}" loading="lazy">
+    {% else %}
+    <div class="placeholder-cover">
+      <div class="placeholder-icon">🎮</div>
+      <div class="placeholder-title">{{ game.title }}</div>
+    </div>
+    {% endif %}
+    {% if game.is_free %}
+    <span class="game-badge free">GRÁTIS</span>
+    {% elif game.is_new %}
+    <span class="game-badge new">NOVO</span>
+    {% elif game.original_price and game.original_price > game.price %}
+    <span class="game-badge sale">-{{ ((1 - game.price/game.original_price)*100)|int }}%</span>
+    {% elif game.is_featured %}
+    <span class="game-badge">TOP</span>
+    {% endif %}
+    <button class="wish-btn {% if current_user %}{% endif %}"
+      onclick="event.preventDefault(); toggleWishlist({{ game.id }}, this)"
+      title="Favoritar" aria-label="Adicionar aos favoritos">
+      <i class="fa{% if current_user %} far{% else %} far{% endif %} fa-heart"></i>
+    </button>
+  </div>
+  <a href="{{ url_for('game_detail', slug=game.slug) }}" class="game-card-body" style="text-decoration:none;color:inherit">
+    <div class="game-title">{{ game.title }}</div>
+    <div class="game-meta">
+      <span class="meta-tag console">{{ game.console_name }}</span>
+      <span class="meta-tag format" data-tooltip="Formato do arquivo de jogo">{{ game.file_format }}</span>
+      {% if game.language %}<span class="meta-tag">{{ game.language }}</span>{% endif %}
+    </div>
+    {% if game.rating %}
+    <div class="game-rating">
+      <span class="stars">
+        {% for i in range(5) %}
+          {% if i < game.rating|int %}⭐{% else %}☆{% endif %}
+        {% endfor %}
+      </span>
+      <span class="rating-count">{{ game.rating }} ({{ game.rating_count }})</span>
+    </div>
+    {% endif %}
+    {% if game.file_size %}<div style="font-size:0.75rem;color:var(--text3)"><i class="fas fa-hdd"></i> {{ game.file_size }}</div>{% endif %}
+  </a>
+  <div class="game-card-footer">
+    <div class="price-box">
+      {% if game.original_price and game.original_price > game.price %}
+      <span class="price-original">R$ {{ '%.2f'|format(game.original_price)|replace('.',',') }}</span>
+      {% endif %}
+      {% if game.is_free %}
+      <span class="price-free">GRÁTIS</span>
+      {% else %}
+      <span class="price-main">R$ {{ '%.2f'|format(game.price)|replace('.',',') }}</span>
+      {% endif %}
+    </div>
+    <button class="add-cart-btn" onclick="addToCart({{ game.id }}, 'game', this)" title="Adicionar ao carrinho">
+      <i class="fas fa-shopping-cart"></i>
+    </button>
+  </div>
+</div>

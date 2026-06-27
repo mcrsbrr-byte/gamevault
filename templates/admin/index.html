@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Admin — GameVault{% endblock %}
+{% block body_class %}admin-body{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title"><i class="fas fa-chart-line"></i> Dashboard</div>
+
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-card-icon gold">🎮</div>
+        <div><div class="stat-card-value">{{ stats.total_games }}</div><div class="stat-card-label">Jogos Cadastrados</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon blue">👤</div>
+        <div><div class="stat-card-value">{{ stats.total_users }}</div><div class="stat-card-label">Usuários</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon green">✅</div>
+        <div><div class="stat-card-value">{{ stats.total_orders }}</div><div class="stat-card-label">Pedidos Aprovados</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon purple">💰</div>
+        <div><div class="stat-card-value">R$ {{ '%.0f'|format(stats.total_revenue) }}</div><div class="stat-card-label">Receita Total</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon red">⏳</div>
+        <div><div class="stat-card-value">{{ stats.pending_orders }}</div><div class="stat-card-label">Pedidos Pendentes</div></div>
+      </div>
+    </div>
+
+    <!-- Sales chart -->
+    <div class="chart-wrap">
+      <div class="chart-title"><i class="fas fa-chart-bar"></i> Vendas nos últimos 30 dias</div>
+      <div class="chart-bars" id="salesChart" data-chart='{{ chart_data|tojson }}'></div>
+      {% if not chart_data %}
+      <p style="text-align:center;color:var(--text3);padding:1rem">Sem dados de vendas ainda.</p>
+      {% endif %}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+      <!-- Recent orders -->
+      <div>
+        <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">Pedidos Recentes</h3>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for order in recent_orders %}
+              <tr>
+                <td><span style="font-family:monospace;font-size:0.8rem">#{{ order.transaction_id[:8] }}</span></td>
+                <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ order.user_name }}</td>
+                <td style="color:var(--gold);font-weight:700">R$ {{ '%.2f'|format(order.total)|replace('.',',') }}</td>
+                <td><span class="order-status status-{{ order.payment_status }}" style="font-size:0.7rem">{{ order.payment_status }}</span></td>
+              </tr>
+              {% else %}
+              <tr><td colspan="4" style="text-align:center;color:var(--text3)">Nenhum pedido</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-outline btn-sm" style="margin-top:0.75rem">Ver todos</a>
+      </div>
+
+      <!-- Top games -->
+      <div>
+        <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">🏆 Top Jogos</h3>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Jogo</th><th>Console</th><th>Vendas</th></tr></thead>
+            <tbody>
+              {% for game in top_games %}
+              <tr>
+                <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ game.title }}</td>
+                <td style="font-size:0.8rem;color:var(--text3)">{{ game.console_name }}</td>
+                <td style="color:var(--gold);font-weight:700">{{ game.sales_count }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="3" style="text-align:center;color:var(--text3)">Sem dados</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <a href="{{ url_for('admin_games') }}" class="btn btn-outline btn-sm" style="margin-top:0.75rem">Gerenciar jogos</a>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap">
+      <a href="{{ url_for('admin_game_new') }}" class="btn btn-gold"><i class="fas fa-plus"></i> Novo Jogo</a>
+      <a href="{{ url_for('admin_report') }}" class="btn btn-outline"><i class="fas fa-file-csv"></i> Exportar CSV</a>
+      <a href="{{ url_for('admin_notify') }}" class="btn btn-outline"><i class="fas fa-bell"></i> Notificar Usuários</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

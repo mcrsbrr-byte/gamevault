@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}GameVault — Loja de Jogos Digitais{% endblock %}</title>
+<meta name="description" content="{% block meta_desc %}GameVault: compre e baixe arquivos de jogos clássicos para PS2, PS3, PSP, Xbox, Xbox 360, Nintendo Wii e 3DS.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+{% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="loading-inner">
+    <div class="loading-logo">🎮</div>
+    <div class="loading-title">GAME<span>VAULT</span></div>
+    <div class="loading-bar"><div class="loading-progress"></div></div>
+    <p class="loading-text">Carregando...</p>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="{{ url_for('index') }}" class="nav-logo">
+      <span class="logo-icon">🎮</span>
+      <span class="logo-text">GAME<span class="logo-gold">VAULT</span></span>
+    </a>
+
+    <div class="nav-links" id="navLinks">
+      <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint=='index' %}active{% endif %}">
+        <i class="fas fa-home"></i> Início
+      </a>
+      <a href="{{ url_for('consoles_page') }}" class="nav-link {% if request.endpoint=='consoles_page' %}active{% endif %}">
+        <i class="fas fa-gamepad"></i> Consoles
+      </a>
+      <div class="nav-dropdown">
+        <span class="nav-link has-dropdown">
+          <i class="fas fa-th-large"></i> Jogos <i class="fas fa-chevron-down tiny"></i>
+        </span>
+        <div class="dropdown-menu">
+          {% for console in consoles %}
+          <a href="{{ url_for('console_page', slug=console.slug) }}" class="dropdown-item">
+            {{ console.name }}
+          </a>
+          {% endfor %}
+          <div class="dropdown-divider"></div>
+          <a href="{{ url_for('all_games') }}" class="dropdown-item"><i class="fas fa-search"></i> Todos os Jogos</a>
+          <a href="{{ url_for('free_games') }}" class="dropdown-item"><i class="fas fa-gift"></i> Gratuitos</a>
+        </div>
+      </div>
+      <a href="{{ url_for('bestsellers') }}" class="nav-link {% if request.endpoint=='bestsellers' %}active{% endif %}">
+        <i class="fas fa-trophy"></i> Mais Vendidos
+      </a>
+      <a href="{{ url_for('novidades') }}" class="nav-link {% if request.endpoint=='novidades' %}active{% endif %}">
+        <i class="fas fa-bolt"></i> Novidades
+      </a>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Search -->
+      <div class="nav-search" id="navSearch">
+        <form action="{{ url_for('search') }}" method="get" class="search-form">
+          <input type="text" name="q" placeholder="Pesquisar jogo..." value="{{ request.args.get('q','') }}" autocomplete="off" id="searchInput">
+          <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
+      </div>
+      <button class="nav-icon-btn" id="searchToggle" title="Buscar">
+        <i class="fas fa-search"></i>
+      </button>
+
+      <!-- Cart -->
+      <a href="{{ url_for('cart') }}" class="nav-icon-btn cart-btn" title="Carrinho">
+        <i class="fas fa-shopping-cart"></i>
+        {% if cart_count > 0 %}
+        <span class="badge">{{ cart_count }}</span>
+        {% endif %}
+      </a>
+
+      <!-- Notifications -->
+      {% if current_user %}
+      <div class="nav-notif" id="notifDropdown">
+        <button class="nav-icon-btn notif-btn" title="Notificações">
+          <i class="fas fa-bell"></i>
+          {% if notif_count > 0 %}
+          <span class="badge pulse">{{ notif_count }}</span>
+          {% endif %}
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-header">
+            <span>Notificações</span>
+            <small id="notifCount">{{ notif_count }} nova(s)</small>
+          </div>
+          <div class="notif-list" id="notifList">
+            <div class="notif-loading">Carregando...</div>
+          </div>
+          <a href="{{ url_for('my_account') }}" class="notif-footer">Ver todas</a>
+        </div>
+      </div>
+
+      <!-- User menu -->
+      <div class="nav-user">
+        <button class="nav-user-btn">
+          {% if current_user.avatar %}
+          <img src="{{ url_for('static', filename='uploads/avatars/'+current_user.avatar) }}" alt="Avatar" class="user-avatar-small">
+          {% else %}
+          <div class="user-initials">{{ current_user.name[0].upper() }}</div>
+          {% endif %}
+          <span class="user-name-short">{{ current_user.name.split()[0] }}</span>
+          <i class="fas fa-chevron-down tiny"></i>
+        </button>
+        <div class="user-dropdown">
+          <a href="{{ url_for('my_account') }}" class="dropdown-item"><i class="fas fa-user"></i> Minha Conta</a>
+          <a href="{{ url_for('my_account') }}#library" class="dropdown-item"><i class="fas fa-gamepad"></i> Meus Jogos</a>
+          <a href="{{ url_for('edit_profile') }}" class="dropdown-item"><i class="fas fa-cog"></i> Configurações</a>
+          {% if current_user.is_admin %}
+          <div class="dropdown-divider"></div>
+          <a href="{{ url_for('admin_index') }}" class="dropdown-item admin-link"><i class="fas fa-shield-alt"></i> Painel Admin</a>
+          {% endif %}
+          <div class="dropdown-divider"></div>
+          <a href="{{ url_for('logout') }}" class="dropdown-item logout-link"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+      </div>
+      {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Entrar</a>
+      <a href="{{ url_for('register') }}" class="btn btn-gold btn-sm">Cadastrar</a>
+      {% endif %}
+
+      <!-- Theme toggle -->
+      <button class="nav-icon-btn theme-toggle" id="themeToggle" title="Alternar tema">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+
+      <!-- Mobile menu toggle -->
+      <button class="nav-icon-btn mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-container" id="flashContainer">
+  {% for category, message in messages %}
+  <div class="flash flash-{{ category }}">
+    <i class="fas fa-{% if category=='success' %}check-circle{% elif category=='error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+    {{ message }}
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<!-- Main Content -->
+<main id="main-content">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">🎮 GAME<span>VAULT</span></div>
+        <p>A maior loja de arquivos de jogos clássicos do Brasil. Compre, baixe e jogue seus favoritos.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-discord"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Consoles</h4>
+        {% for console in consoles %}
+        <a href="{{ url_for('console_page', slug=console.slug) }}">{{ console.name }}</a>
+        {% endfor %}
+      </div>
+      <div class="footer-col">
+        <h4>Loja</h4>
+        <a href="{{ url_for('bestsellers') }}">Mais Vendidos</a>
+        <a href="{{ url_for('novidades') }}">Novidades</a>
+        <a href="{{ url_for('free_games') }}">Jogos Gratuitos</a>
+        <a href="{{ url_for('all_games') }}">Todos os Jogos</a>
+        <a href="{{ url_for('cart') }}">Carrinho</a>
+      </div>
+      <div class="footer-col">
+        <h4>Conta</h4>
+        <a href="{{ url_for('register') }}">Criar Conta</a>
+        <a href="{{ url_for('login') }}">Entrar</a>
+        <a href="{{ url_for('my_account') }}">Meus Jogos</a>
+        <a href="{{ url_for('my_account') }}#orders">Meus Pedidos</a>
+        <a href="{{ url_for('my_account') }}#wishlist">Favoritos</a>
+      </div>
+      <div class="footer-col">
+        <h4>Newsletter</h4>
+        <p class="footer-newsletter-text">Receba promoções e novidades direto no seu email.</p>
+        <form class="footer-newsletter" id="footerNewsletter">
+          <input type="email" placeholder="seu@email.com" required id="newsletterEmail">
+          <button type="submit" class="btn btn-gold btn-sm">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+        <div id="newsletterMsg" class="newsletter-msg"></div>
+        <h4 style="margin-top:1.5rem">Pagamentos</h4>
+        <div class="payment-icons">
+          <span class="pay-icon">💳 Cartão</span>
+          <span class="pay-icon">🔵 PIX</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© {{ now.year }} GameVault. Todos os direitos reservados.</p>
+      <p>Arquivos para uso pessoal em emuladores. <a href="{{ url_for('sitemap') }}">Sitemap</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/5500000000000?text=Olá!%20Preciso%20de%20ajuda%20no%20GameVault" 
+   class="whatsapp-float" target="_blank" title="Suporte via WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+</a>
+
+<!-- Welcome popup (for new visitors) -->
+<div id="welcomePopup" class="popup-overlay" style="display:none">
+  <div class="popup-box">
+    <button class="popup-close" onclick="closeWelcome()">×</button>
+    <div class="popup-icon">🎮</div>
+    <h2>Bem-vindo ao GameVault!</h2>
+    <p>Use o cupom <strong class="gold">PRIMEIRACOMPRA</strong> e ganhe <strong class="gold">15% OFF</strong> na sua primeira compra!</p>
+    <div class="popup-actions">
+      <a href="{{ url_for('all_games') }}" class="btn btn-gold btn-lg" onclick="closeWelcome()">Ver Jogos</a>
+      <button class="btn btn-outline" onclick="closeWelcome()">Depois</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip container -->
+<div id="tooltip" class="tooltip-box" style="display:none"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

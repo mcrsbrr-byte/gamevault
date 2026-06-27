@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}{% if game %}Editar{% else %}Novo{% endif %} Jogo — Admin{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/sidebar.html" %}
+  <div class="admin-content">
+    <div class="admin-page-title">
+      <i class="fas fa-{% if game %}edit{% else %}plus{% endif %}"></i>
+      {% if game %}Editar: {{ game.title }}{% else %}Adicionar Novo Jogo{% endif %}
+    </div>
+
+    <div class="form-card form-card-wide">
+      <form method="post" enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nome do Jogo *</label>
+            <input type="text" name="title" class="form-input" value="{{ game.title if game else '' }}" required placeholder="Ex: Grand Theft Auto: San Andreas">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Console *</label>
+            <select name="console_id" class="form-select" required>
+              <option value="">Selecionar...</option>
+              {% for c in consoles %}
+              <option value="{{ c.id }}" {% if game and game.console_id==c.id %}selected{% endif %}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Categoria</label>
+            <select name="category_id" class="form-select">
+              <option value="">Selecionar...</option>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if game and game.category_id==cat.id %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Formato do Arquivo *</label>
+            <select name="file_format" class="form-select">
+              {% for fmt in ['ISO','ROM','PKG','CIA','WBFS','NDS','GBA','BIN','ZIP','RAR'] %}
+              <option value="{{ fmt }}" {% if game and game.file_format==fmt %}selected{% endif %}>{{ fmt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Preço (R$) *</label>
+            <input type="number" name="price" class="form-input" step="0.01" min="0" value="{{ game.price if game else '9.90' }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preço Original (riscado, 0 = sem)</label>
+            <input type="number" name="original_price" class="form-input" step="0.01" min="0" value="{{ game.original_price if game else '0' }}">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Idioma</label>
+            <select name="language" class="form-select">
+              {% for lang in ['PT-BR','PT-PT','EN','ES','FR','IT','DE','JA'] %}
+              <option value="{{ lang }}" {% if game and game.language==lang %}selected{% endif %}>{{ lang }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Região</label>
+            <select name="region" class="form-select">
+              {% for reg in ['NTSC','PAL','NTSC-J','Multi'] %}
+              <option value="{{ reg }}" {% if game and game.region==reg %}selected{% endif %}>{{ reg }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tamanho do Arquivo (ex: 4.2 GB)</label>
+          <input type="text" name="file_size" class="form-input" value="{{ game.file_size if game else '' }}" placeholder="Ex: 4.2 GB">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Compatibilidade com Emuladores</label>
+          <input type="text" name="compatibility" class="form-input" value="{{ game.compatibility if game else '' }}" placeholder="Ex: PCSX2, RetroArch, PPSSPP">
+          <p class="form-hint">Separe por vírgula</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea name="description" class="form-textarea" rows="5" placeholder="Descrição do jogo...">{{ game.description if game else '' }}</textarea>
+        </div>
+
+        <!-- Capa -->
+        <div class="form-group">
+          <label class="form-label">Capa do Jogo</label>
+          {% if game and game.cover %}
+          <div style="margin-bottom:0.75rem">
+            <img src="{{ url_for('static', filename='uploads/covers/'+game.cover) }}" alt="Capa" style="height:120px;border-radius:var(--radius-sm)">
+          </div>
+          {% endif %}
+          <div class="upload-area" onclick="document.getElementById('coverInput').click()">
+            <input type="file" id="coverInput" name="cover" accept="image/*" data-preview="coverPreview">
+            <div class="upload-icon"><i class="fas fa-image"></i></div>
+            <div class="upload-text">Clique para selecionar a capa (JPG/PNG, ideal 400x560px)</div>
+          </div>
+          <img id="coverPreview" style="display:none;height:120px;margin-top:0.5rem;border-radius:var(--radius-sm)">
+        </div>
+
+        <!-- Imagens extras -->
+        <div class="form-group">
+          <label class="form-label">Screenshots / Imagens Extras</label>
+          {% if images %}
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
+            {% for img in images %}
+            <img src="{{ url_for('static', filename='uploads/covers/'+img) }}" style="height:80px;border-radius:6px">
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="upload-area" onclick="document.getElementById('imagesInput').click()">
+            <input type="file" id="imagesInput" name="images" accept="image/*" multiple>
+            <div class="upload-icon"><i class="fas fa-images"></i></div>
+            <div class="upload-text">Screenshots adicionais (múltiplas imagens)</div>
+          </div>
+        </div>
+
+        <!-- Arquivo do jogo -->
+        <div class="form-group">
+          <label class="form-label">Arquivo do Jogo</label>
+          {% if game and game.file_path %}
+          <div style="padding:0.75rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:var(--radius-sm);margin-bottom:0.75rem;font-size:0.875rem">
+            <i class="fas fa-file" style="color:var(--success)"></i> Arquivo: <strong>{{ game.file_path }}</strong>
+          </div>
+          {% endif %}
+          <div class="upload-area" onclick="document.getElementById('gameFile').click()">
+            <input type="file" id="gameFile" name="game_file">
+            <div class="upload-icon"><i class="fas fa-file-archive"></i></div>
+            <div class="upload-text">ISO, ROM, PKG, CIA, ZIP, RAR etc.</div>
+          </div>
+        </div>
+
+        <!-- Flags -->
+        <div style="display:flex;gap:2rem;flex-wrap:wrap;margin:1.5rem 0">
+          <label class="form-check">
+            <input type="checkbox" name="is_free" {% if game and game.is_free %}checked{% endif %}>
+            <span>🎁 Jogo Gratuito</span>
+          </label>
+          <label class="form-check">
+            <input type="checkbox" name="is_featured" {% if game and game.is_featured %}checked{% endif %}>
+            <span>⭐ Destaque na Home</span>
+          </label>
+          {% if game %}
+          <label class="form-check">
+            <input type="checkbox" name="is_active" {% if game.is_active %}checked{% endif %}>
+            <span>✅ Jogo Ativo</span>
+          </label>
+          {% endif %}
+        </div>
+
+        <div style="display:flex;gap:0.75rem">
+          <button type="submit" class="btn btn-gold btn-lg">
+            <i class="fas fa-save"></i> {% if game %}Salvar Alterações{% else %}Adicionar Jogo{% endif %}
+          </button>
+          <a href="{{ url_for('admin_games') }}" class="btn btn-outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
