@@ -338,7 +338,7 @@ main { padding-top: 64px; }
 /* ── Hero Slider ───────────────────────────────────────── */
 .hero-slider {
   position: relative; overflow: hidden;
-  height: 520px; background: var(--bg2);
+  height: 480px; background: var(--bg2);
 }
 .slider-track { display: flex; transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94); height: 100%; }
 .slide {
@@ -353,24 +353,24 @@ main { padding-top: 64px; }
 .slide-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.3; }
 .slide-bg::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(10,10,15,0.9) 40%, transparent);
+  background: linear-gradient(90deg, rgba(10,10,15,0.92) 40%, transparent);
 }
 .slide-content {
-  position: relative; z-index: 1; padding: 0 6rem;
-  max-width: 600px;
+  position: relative; z-index: 1; padding: 0 5rem;
+  max-width: 600px; width: 100%;
 }
 .slide-eyebrow {
   font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
-  letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 1rem;
+  letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 0.75rem;
 }
 .slide-title {
-  font-family: var(--font-heading); font-size: 3rem; font-weight: 700;
-  line-height: 1.05; margin-bottom: 1rem;
+  font-family: var(--font-heading); font-size: 2.5rem; font-weight: 700;
+  line-height: 1.1; margin-bottom: 0.75rem;
 }
-.slide-desc { color: var(--text2); margin-bottom: 2rem; font-size: 1.05rem; }
-.slide-actions { display: flex; gap: 1rem; }
+.slide-desc { color: var(--text2); margin-bottom: 1.5rem; font-size: 1rem; }
+.slide-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .slider-dots {
-  position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
   display: flex; gap: 0.5rem; z-index: 10;
 }
 .slider-dot {
@@ -380,14 +380,14 @@ main { padding-top: 64px; }
 .slider-dot.active { width: 24px; background: var(--gold); }
 .slider-prev, .slider-next {
   position: absolute; top: 50%; transform: translateY(-50%);
-  width: 48px; height: 48px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: rgba(10,10,15,0.6); border: 1px solid var(--border);
-  color: var(--text); font-size: 1rem; cursor: pointer;
+  color: var(--text); font-size: 0.9rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all var(--transition); z-index: 10;
 }
-.slider-prev { left: 1.5rem; }
-.slider-next { right: 1.5rem; }
+.slider-prev { left: 0.75rem; }
+.slider-next { right: 0.75rem; }
 .slider-prev:hover, .slider-next:hover { background: var(--gold); color: #000; border-color: var(--gold); }
 
 /* ── Stats bar ─────────────────────────────────────────── */
@@ -498,12 +498,13 @@ main { padding-top: 64px; }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
 /* ── Console Cards ──────────────────────────────────────── */
-.consoles-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.consoles-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .console-card {
   background: var(--card); border-radius: var(--radius);
   border: 1px solid var(--border); overflow: hidden;
   transition: all var(--transition); position: relative;
   aspect-ratio: 16/9; display: flex; align-items: flex-end;
+  min-height: 110px; text-decoration: none; color: inherit;
 }
 .console-card:hover { transform: translateY(-4px); border-color: rgba(245,197,24,0.4); box-shadow: var(--shadow-gold); }
 .console-card-bg {
@@ -511,10 +512,10 @@ main { padding-top: 64px; }
   background: linear-gradient(135deg, #1a1a2e, #16213e);
 }
 .console-card-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
-.console-card-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,15,0.9) 0%, transparent 60%); }
-.console-card-info { position: relative; z-index: 1; padding: 1rem 1.25rem; }
-.console-name { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; }
-.console-count { font-size: 0.8rem; color: var(--gold); }
+.console-card-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,15,0.92) 0%, transparent 60%); }
+.console-card-info { position: relative; z-index: 1; padding: 0.75rem 1rem; width: 100%; }
+.console-name { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; line-height: 1.2; }
+.console-count { font-size: 0.75rem; color: var(--gold); margin-top: 0.1rem; }
 
 /* ── Filters & Sort ────────────────────────────────────── */
 .filter-bar {
@@ -1029,8 +1030,8 @@ main { padding-top: 64px; }
   .admin-sidebar { position: static; height: auto; }
   .game-hero-grid { grid-template-columns: 1fr; }
   .game-cover-main { max-width: 240px; margin: 0 auto; }
-  .hero-slider { height: 360px; }
-  .slide-content { padding: 0 2rem; }
+  .hero-slider { height: 340px; }
+  .slide-content { padding: 1.5rem 2rem; }
   .slide-title { font-size: 1.8rem; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .game-detail-meta { gap: 0.75rem; }
@@ -1038,47 +1039,94 @@ main { padding-top: 64px; }
   .stats-cards { grid-template-columns: repeat(2, 1fr); }
   .order-summary { position: static; }
   .admin-content { padding: 1rem; }
+  .consoles-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
-  .games-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-  .games-grid-lg { grid-template-columns: repeat(2, 1fr); }
-  .consoles-grid { grid-template-columns: 1fr 1fr; }
-  .library-grid { grid-template-columns: repeat(2, 1fr); }
-  .hero-slider { height: 260px; }
-  .slide-content { padding: 0 1rem; }
-  .slide-title { font-size: 1.3rem; }
-  .slide-desc { font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .slide-actions { flex-direction: column; gap: 0.5rem; }
-  .slide-actions .btn { width: 100%; justify-content: center; }
+  /* Layout */
+  .games-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .games-grid-lg { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .consoles-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .library-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
   .footer-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .payment-methods { flex-direction: column; }
-  .nav-actions { gap: 0.25rem; }
+  .stats-cards { grid-template-columns: 1fr 1fr; }
+
+  /* Slider */
+  .hero-slider { height: auto; min-height: 320px; }
+  .slide { align-items: flex-start; padding-top: 2rem; }
+  .slide-content { padding: 1rem 1.25rem; max-width: 100%; }
+  .slide-title { font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .slide-eyebrow { margin-bottom: 0.4rem; }
+  .slide-desc { font-size: 0.85rem; margin-bottom: 1rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .slide-actions { flex-direction: row; gap: 0.5rem; flex-wrap: wrap; }
+  .slide-actions .btn { flex: 1; min-width: 130px; font-size: 0.85rem; padding: 0.55rem 0.75rem; }
+  .slider-dots { bottom: 0.5rem; }
+  .slider-prev { left: 0.25rem; width: 32px; height: 32px; font-size: 0.75rem; }
+  .slider-next { right: 0.25rem; width: 32px; height: 32px; font-size: 0.75rem; }
+
+  /* Nav */
+  .nav-actions { gap: 0.2rem; }
   .user-name-short { display: none; }
-  .stats-grid { gap: 1rem; }
+  .nav-container { padding: 0 0.75rem; }
+
+  /* Stats bar */
+  .stats-grid { gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
   .stat-number { font-size: 1.1rem; }
-  .section-title { font-size: 1.4rem; }
-  .game-detail-title { font-size: 1.6rem; }
-  .game-price-box { padding: 1rem; }
-  .price-big { font-size: 1.6rem; }
-  .game-card-img { aspect-ratio: 3/4; }
-  .account-sidebar { padding: 1rem; }
-  .form-card { padding: 1.25rem; }
-  .cart-item { flex-wrap: wrap; }
+  .stat-label { font-size: 0.65rem; }
+
+  /* Typography */
+  .section-title { font-size: 1.3rem; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-bottom: 1rem; }
+
+  /* Game cards */
+  .game-card-body { padding: 0.6rem; gap: 0.3rem; }
+  .game-title { font-size: 0.85rem; }
+  .game-card-footer { padding: 0.5rem 0.6rem; }
+  .price-main { font-size: 0.95rem; }
+  .add-cart-btn { width: 30px; height: 30px; font-size: 0.75rem; }
   .scroll-row .game-card { min-width: 150px; }
+  .meta-tag { font-size: 0.65rem; padding: 0.1rem 0.4rem; }
+
+  /* Console cards */
+  .console-card { aspect-ratio: 16/10; }
+  .console-name { font-size: 0.95rem; }
+
+  /* Detail page */
+  .game-detail-title { font-size: 1.5rem; }
+  .game-price-box { padding: 1rem; }
+  .price-big { font-size: 1.5rem; }
+  .game-rating-big { flex-wrap: wrap; gap: 0.5rem; }
+
+  /* Account */
+  .account-sidebar { padding: 1rem; }
+  .form-card { padding: 1rem; }
+  .cart-item { flex-wrap: wrap; }
+  .order-row { flex-wrap: wrap; gap: 0.5rem; }
+
+  /* WhatsApp */
   .whatsapp-float { width: 48px; height: 48px; font-size: 1.25rem; bottom: 1rem; right: 1rem; }
   .wa-tooltip { display: none; }
+
+  /* Misc */
   .bundle-card { padding: 1rem; }
-  .stats-cards { grid-template-columns: 1fr 1fr; }
-  .admin-table { font-size: 0.8rem; }
-  .admin-table th, .admin-table td { padding: 0.5rem 0.6rem; }
+  .admin-table { font-size: 0.78rem; }
+  .admin-table th, .admin-table td { padding: 0.45rem 0.5rem; }
+  .filter-bar { gap: 0.4rem; }
+  .filter-btn { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+  .breadcrumb { font-size: 0.8rem; }
+  .pagination { gap: 0.3rem; }
+  .page-btn { min-width: 34px; height: 34px; font-size: 0.8rem; }
 }
 @media (max-width: 400px) {
-  .games-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-  .hero-slider { height: 220px; }
-  .slide-title { font-size: 1.1rem; }
-  .slide-content { padding: 0 0.75rem; }
-  .nav-logo .logo-text { font-size: 1rem; }
+  .games-grid { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+  .hero-slider { min-height: 280px; }
+  .slide-title { font-size: 1.2rem; }
+  .slide-content { padding: 0.75rem 1rem; }
+  .nav-logo .logo-text { font-size: 0.95rem; }
+  .logo-icon { font-size: 1.2rem; }
+  .slide-actions .btn { font-size: 0.8rem; padding: 0.5rem 0.65rem; }
 }
 
 /* Nav mobile open */

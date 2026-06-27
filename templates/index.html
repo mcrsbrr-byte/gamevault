@@ -62,24 +62,24 @@
 <!-- Stats Bar -->
 <div class="stats-bar">
   <div class="container">
-    <div class="stats-grid">
-      <div class="stat-item">
+    <div class="stats-grid" style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:0.25rem">
+      <div class="stat-item" style="flex-shrink:0">
         <div class="stat-number">{{ stats.games }}+</div>
         <div class="stat-label">Jogos Disponíveis</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-item" style="flex-shrink:0">
         <div class="stat-number">7</div>
         <div class="stat-label">Consoles</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-item" style="flex-shrink:0">
         <div class="stat-number">{{ stats.users }}+</div>
         <div class="stat-label">Jogadores</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-item" style="flex-shrink:0">
         <div class="stat-number">{{ stats.orders }}+</div>
         <div class="stat-label">Downloads Realizados</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-item" style="flex-shrink:0">
         <div class="stat-number">⭐ 4.9</div>
         <div class="stat-label">Avaliação Média</div>
       </div>
@@ -100,10 +100,12 @@
     </div>
     <div class="consoles-grid reveal">
       {% for console in consoles %}
-      <a href="{{ url_for('console_page', slug=console.slug) }}" class="console-card">
+      <a href="{{ url_for('console_page', slug=console.slug) }}" class="console-card" style="min-height:100px">
         <div class="console-card-bg">
           {% if console.banner %}
           <img src="{{ url_for('static', filename='uploads/banners/'+console.banner) }}" alt="{{ console.name }}">
+          {% else %}
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e)"></div>
           {% endif %}
         </div>
         <div class="console-card-info">
