@@ -760,33 +760,69 @@ def payment_page(txn):
 @app.route('/pagamento/<txn>/confirmar', methods=['POST'])
 @login_required
 def payment_confirm(txn):
-    """Simulate payment approval (in production: webhook from payment gateway)"""
+    """Cliente avisa que pagou — fica aguardando confirmacao manual do admin"""
     db   = get_db()
     user = current_user()
     order = db.execute("SELECT * FROM orders WHERE transaction_id=? AND user_id=?", (txn, user['id'])).fetchone()
     if not order:
         return jsonify({'error': 'Order not found'}), 404
+    db.execute("UPDATE orders SET payment_status='waiting' WHERE id=?", (order['id'],))
+    db.execute("INSERT INTO notifications(user_id,title,message,type) VALUES(?,?,?,?)",
+        (user['id'], '⏳ Pagamento em análise!',
+         f'Recebemos seu aviso do pedido #{txn[:8]}. Confirmaremos o PIX em breve e liberaremos seu acesso!', 'info'))
+    db.commit()
+    items = db.execute("SELECT * FROM order_items WHERE order_id=?", (order['id'],)).fetchall()
+    items_str = ', '.join([it['title'] for it in items])
+    send_email(ADMIN_EMAIL,
+        f'[GameVault] ⚠️ PIX aguardando confirmação — R$ {order["total"]:.2f}',
+        f'<h2>Novo pagamento para confirmar!</h2>'
+        f'<p><b>Cliente:</b> {user["name"]} ({user["email"]})</p>'
+        f'<p><b>Pedido:</b> #{txn}</p>'
+        f'<p><b>Total:</b> R$ {order["total"]:.2f}</p>'
+        f'<p><b>Jogos:</b> {items_str}</p>'
+        f'<p>Verifique o PIX recebido e acesse o painel admin para aprovar o pedido.</p>'
+        f'<p><a href="https://gamevaultstore.up.railway.app/admin/pedidos" style="background:#f5c518;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold">✅ Ir para Painel Admin</a></p>')
+    session.pop('cart', None)
+    session.pop('pending_order', None)
+    return jsonify({'status': 'waiting'})
+
+
+@app.route('/admin/aprovar/<txn>', methods=['POST'])
+@admin_required
+def admin_approve_order(txn):
+    """Admin aprova o pedido manualmente"""
+    db = get_db()
+    order = db.execute("SELECT * FROM orders WHERE transaction_id=?", (txn,)).fetchone()
+    if not order:
+        flash('Pedido não encontrado.', 'error')
+        return redirect(url_for('admin_orders'))
     db.execute("UPDATE orders SET payment_status='approved', paid_at=datetime('now') WHERE id=?", (order['id'],))
     items = db.execute("SELECT * FROM order_items WHERE order_id=?", (order['id'],)).fetchall()
     for it in items:
         if it['game_id']:
             db.execute("UPDATE games SET sales_count=sales_count+1, download_count=download_count+1 WHERE id=?", (it['game_id'],))
-    # Points (1 point per R$1)
     pts = int(order['total'])
-    db.execute("UPDATE users SET points=points+? WHERE id=?", (pts, user['id']))
-    # Notification
+    db.execute("UPDATE users SET points=points+? WHERE id=?", (pts, order['user_id']))
     db.execute("INSERT INTO notifications(user_id,title,message,type) VALUES(?,?,?,?)",
-        (user['id'], '✅ Compra aprovada!', f'Seu pedido #{txn[:8]} foi aprovado. Acesse Meus Jogos para baixar.', 'success'))
+        (order['user_id'], '✅ Pagamento confirmado!',
+         f'Seu pedido #{txn[:8]} foi aprovado! Acesse Meus Jogos para baixar.', 'success'))
     db.commit()
-    # Email
+    user = db.execute("SELECT * FROM users WHERE id=?", (order['user_id'],)).fetchone()
     items_str = ', '.join([it['title'] for it in items])
-    send_email(user['email'], '✅ Compra aprovada — GameVault',
-        f'<h2>Compra aprovada!</h2><p>Pedido: <b>#{txn[:8]}</b></p><p>Jogos: {items_str}</p><p>Acesse sua conta para baixar.</p>')
-    send_email(ADMIN_EMAIL, f'[GameVault] Nova venda! R$ {order["total"]:.2f}',
-        f'<p>Usuário: {user["name"]} ({user["email"]})</p><p>Pedido: #{txn}</p><p>Total: R$ {order["total"]:.2f}</p><p>Jogos: {items_str}</p>')
-    session.pop('cart', None)
-    session.pop('pending_order', None)
-    return jsonify({'status': 'ok'})
+    send_email(user['email'], '✅ Pagamento confirmado — GameVault',
+        f'<h2>Pagamento confirmado!</h2>'
+        f'<p>Olá {user["name"]}! Seu pedido <b>#{txn[:8]}</b> foi aprovado.</p>'
+        f'<p><b>Jogos:</b> {items_str}</p>'
+        f'<p>Acesse sua conta para baixar os jogos.</p>'
+        f'<p><a href="https://gamevaultstore.up.railway.app/minha-conta" style="background:#f5c518;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold">📥 Baixar Jogos</a></p>')
+    flash(f'Pedido #{txn[:8]} aprovado e cliente notificado!', 'success')
+    return redirect(url_for('admin_orders'))
+
+
+@app.route('/pagamento-aguardando')
+@login_required
+def payment_waiting():
+    return render_template('payment_waiting.html')
 
 
 # ══════════════════════════════════════════════════════════════════════════════

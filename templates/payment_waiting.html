@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Aguardando Confirmação — GameVault{% endblock %}
+{% block content %}
+<div class="container section" style="max-width:560px;text-align:center">
+  <div style="font-size:4rem;margin-bottom:1rem">⏳</div>
+  <h1 class="section-title" style="margin-bottom:1rem">Pagamento em <span>Análise</span></h1>
+  <div style="background:var(--card);border:1px solid rgba(245,197,24,0.3);border-radius:var(--radius);padding:2rem;margin-bottom:2rem">
+    <p style="color:var(--text2);line-height:1.8;margin-bottom:1rem">
+      Recebemos seu aviso de pagamento! 🎉<br>
+      Estamos verificando o <strong style="color:var(--gold)">PIX</strong> e em breve liberaremos o acesso aos seus jogos.
+    </p>
+    <div style="background:rgba(245,197,24,0.08);border:1px solid rgba(245,197,24,0.2);border-radius:var(--radius-sm);padding:1rem;margin:1rem 0">
+      <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:0.25rem">⏱️ Prazo de confirmação</div>
+      <div style="color:var(--text2);font-size:0.9rem">Até <strong>30 minutos</strong> em horário comercial</div>
+    </div>
+    <p style="font-size:0.875rem;color:var(--text3)">
+      Você receberá um <strong>email</strong> e uma <strong>notificação</strong> no site assim que seu pagamento for confirmado.
+    </p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:0.75rem">
+    <a href="{{ url_for('my_account') }}" class="btn btn-gold btn-lg">
+      <i class="fas fa-user"></i> Acompanhar na Minha Conta
+    </a>
+    <a href="{{ url_for('index') }}" class="btn btn-outline">
+      <i class="fas fa-home"></i> Voltar ao início
+    </a>
+  </div>
+
+  <p style="margin-top:2rem;font-size:0.8rem;color:var(--text3)">
+    Dúvidas? Fale conosco pelo
+    <a href="https://wa.me/5500000000000" style="color:var(--gold)">WhatsApp</a>
+  </p>
+</div>
+{% endblock %}

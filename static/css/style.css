@@ -733,6 +733,7 @@ main { padding-top: 64px; }
 .status-approved { background: rgba(34,197,94,0.15); color: var(--success); }
 .status-pending  { background: rgba(245,158,11,0.15); color: var(--warning); }
 .status-rejected { background: rgba(239,68,68,0.15); color: var(--error); }
+.status-waiting  { background: rgba(245,158,11,0.15); color: var(--warning); }
 .order-total { font-family: var(--font-heading); font-weight: 700; color: var(--gold); margin-left: auto; }
 
 /* ── Forms ─────────────────────────────────────────────── */
