@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ emulator.name }} — GameVault{% endblock %}
+{% block content %}
+
+{% if emulator.banner %}
+<div style="height:220px;overflow:hidden;position:relative;background:var(--bg2)">
+  <img src="{{ url_for('static', filename='uploads/banners/'+emulator.banner) }}" alt="{{ emulator.name }}"
+    style="width:100%;height:100%;object-fit:cover;opacity:0.4">
+  <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 60%);display:flex;align-items:flex-end;padding:2rem 3rem">
+    <div>
+      <h1 style="font-family:var(--font-heading);font-size:2.5rem;font-weight:700">{{ emulator.name }}</h1>
+      {% if emulator.description %}<p style="color:var(--text3)">{{ emulator.description }}</p>{% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="container section">
+  <div class="breadcrumb">
+    <a href="/">Início</a><span class="breadcrumb-sep">/</span>
+    <a href="{{ url_for('emulators_page') }}">Emuladores</a><span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ emulator.name }}</span>
+  </div>
+
+  {% if not emulator.banner %}
+  <h1 style="font-family:var(--font-heading);font-size:2rem;font-weight:700;margin-bottom:0.5rem">{{ emulator.name }}</h1>
+  {% if emulator.description %}<p style="color:var(--text3);margin-bottom:1.5rem">{{ emulator.description }}</p>{% endif %}
+  {% endif %}
+
+  <div style="text-align:center;padding:4rem 0">
+    <div style="font-size:4rem;margin-bottom:1rem">🖥️</div>
+    <h3 style="font-family:var(--font-heading);font-size:1.5rem;margin-bottom:0.5rem">Em breve!</h3>
+    <p style="color:var(--text3);margin-bottom:2rem">O conteúdo deste emulador está sendo preparado.</p>
+    <a href="{{ url_for('emulators_page') }}" class="btn btn-outline">
+      <i class="fas fa-arrow-left"></i> Ver todos os emuladores
+    </a>
+  </div>
+</div>
+{% endblock %}

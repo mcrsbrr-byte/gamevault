@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Emuladores — GameVault{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="breadcrumb">
+    <a href="/">Início</a><span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">Emuladores</span>
+  </div>
+
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">🖥️ <span>Emuladores</span></h1>
+      <p class="section-subtitle">Baixe o emulador certo para rodar seus jogos</p>
+    </div>
+  </div>
+
+  {% if emulators %}
+  <div class="consoles-grid">
+    {% for emu in emulators %}
+    <a href="{{ url_for('emulator_page', slug=emu.slug) }}" class="console-card reveal" style="aspect-ratio:4/3">
+      <div class="console-card-bg">
+        {% if emu.banner %}
+        <img src="{{ url_for('static', filename='uploads/banners/'+emu.banner) }}" alt="{{ emu.name }}">
+        {% endif %}
+      </div>
+      <div class="console-card-info">
+        <div class="console-name">{{ emu.name }}</div>
+        {% if emu.description %}
+        <div class="console-count">{{ emu.description[:60] }}{% if emu.description|length > 60 %}...{% endif %}</div>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:5rem 0">
+    <div style="font-size:4rem;margin-bottom:1rem">🖥️</div>
+    <h3 style="font-family:var(--font-heading);font-size:1.5rem;margin-bottom:0.5rem">Em breve!</h3>
+    <p style="color:var(--text3);margin-bottom:2rem">Estamos preparando os emuladores para você.<br>Volte em breve!</p>
+    <a href="{{ url_for('index') }}" class="btn btn-gold"><i class="fas fa-home"></i> Voltar ao início</a>
+  </div>
+  {% endif %}
+
+  <!-- Info section -->
+  <div class="section-sm reveal" style="margin-top:3rem">
+    <div class="section-header">
+      <h2 class="section-title">❓ O que é um <span>Emulador</span>?</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem">
+      <div class="stat-card">
+        <div class="stat-card-icon gold">🎮</div>
+        <div>
+          <div style="font-family:var(--font-heading);font-weight:700;margin-bottom:0.25rem">O que é</div>
+          <div style="font-size:0.85rem;color:var(--text3)">Um programa que simula um console no seu PC, permitindo jogar jogos de PS2, PSP, etc.</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon blue">💻</div>
+        <div>
+          <div style="font-family:var(--font-heading);font-weight:700;margin-bottom:0.25rem">Como usar</div>
+          <div style="font-size:0.85rem;color:var(--text3)">Baixe o emulador, instale, abra o arquivo do jogo comprado aqui e jogue!</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon green">✅</div>
+        <div>
+          <div style="font-family:var(--font-heading);font-weight:700;margin-bottom:0.25rem">Compatibilidade</div>
+          <div style="font-size:0.85rem;color:var(--text3)">Todos os jogos do GameVault são compatíveis com os emuladores listados aqui.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

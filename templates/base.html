@@ -40,6 +40,9 @@
       <a href="{{ url_for('consoles_page') }}" class="nav-link {% if request.endpoint=='consoles_page' %}active{% endif %}">
         <i class="fas fa-gamepad"></i> Consoles
       </a>
+      <a href="{{ url_for('emulators_page') }}" class="nav-link {% if request.endpoint=='emulators_page' %}active{% endif %}">
+        <i class="fas fa-desktop"></i> Emuladores
+      </a>
       <div class="nav-dropdown">
         <span class="nav-link has-dropdown">
           <i class="fas fa-th-large"></i> Jogos <i class="fas fa-chevron-down tiny"></i>
@@ -187,6 +190,7 @@
       </div>
       <div class="footer-col">
         <h4>Loja</h4>
+        <a href="{{ url_for('emulators_page') }}">Emuladores</a>
         <a href="{{ url_for('bestsellers') }}">Mais Vendidos</a>
         <a href="{{ url_for('novidades') }}">Novidades</a>
         <a href="{{ url_for('free_games') }}">Jogos Gratuitos</a>

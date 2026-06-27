@@ -227,6 +227,16 @@ def init_db():
         sort_order INTEGER DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS emulators (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        banner TEXT DEFAULT '',
+        description TEXT DEFAULT '',
+        sort_order INTEGER DEFAULT 0,
+        active INTEGER DEFAULT 1
+    );
+
     CREATE INDEX IF NOT EXISTS idx_games_console ON games(console_id);
     CREATE INDEX IF NOT EXISTS idx_games_category ON games(category_id);
     CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
@@ -335,6 +345,7 @@ def send_email(to, subject, body_html, body_text=''):
 def inject_globals():
     db = get_db()
     consoles = db.execute("SELECT * FROM consoles WHERE active=1 ORDER BY sort_order").fetchall()
+    emulators = db.execute("SELECT * FROM emulators WHERE active=1 ORDER BY sort_order").fetchall()
     user = current_user()
     notif_count = 0
     cart = session.get('cart', [])
@@ -345,6 +356,7 @@ def inject_globals():
         ).fetchone()[0]
     return dict(
         consoles=consoles,
+        emulators=emulators,
         current_user=user,
         notif_count=notif_count,
         cart_count=len(cart),
@@ -422,6 +434,23 @@ def console_page(slug):
         console=console, games=games, categories=categories,
         cat_filter=cat_filter, sort=sort, search=search,
         page=page, pages=pages, total=total)
+
+
+
+@app.route('/emuladores')
+def emulators_page():
+    db = get_db()
+    emulators = db.execute("SELECT * FROM emulators WHERE active=1 ORDER BY sort_order").fetchall()
+    return render_template('emulators.html', emulators=emulators)
+
+
+@app.route('/emulador/<slug>')
+def emulator_page(slug):
+    db = get_db()
+    emulator = db.execute("SELECT * FROM emulators WHERE slug=? AND active=1", (slug,)).fetchone()
+    if not emulator:
+        abort(404)
+    return render_template('emulator_detail.html', emulator=emulator)
 
 
 @app.route('/jogo/<slug>')
@@ -1354,6 +1383,49 @@ def admin_report():
     return output
 
 
+@app.route('/admin/emuladores', methods=['GET','POST'])
+@admin_required
+def admin_emulators():
+    db = get_db()
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'add':
+            name = request.form.get('name','').strip()
+            desc = request.form.get('description','').strip()
+            sl   = slugify(name)
+            banner_file = request.files.get('banner')
+            banner = save_image(banner_file, UPLOAD_BANNERS, (1200,400)) or ''
+            try:
+                db.execute("INSERT INTO emulators(name,slug,banner,description) VALUES(?,?,?,?)", (name,sl,banner,desc))
+                db.commit()
+                flash(f'Emulador "{name}" adicionado!','success')
+            except:
+                flash('Emulador já existe.','error')
+        elif action == 'edit':
+            eid    = int(request.form.get('eid',0))
+            name   = request.form.get('name','').strip()
+            desc   = request.form.get('description','').strip()
+            sort   = int(request.form.get('sort_order',0))
+            active = 1 if request.form.get('active') else 0
+            banner_file = request.files.get('banner')
+            e = db.execute("SELECT * FROM emulators WHERE id=?", (eid,)).fetchone()
+            banner = e['banner'] if e else ''
+            if banner_file and banner_file.filename:
+                fn = save_image(banner_file, UPLOAD_BANNERS, (1200,400))
+                if fn: banner = fn
+            db.execute("UPDATE emulators SET name=?,description=?,sort_order=?,active=?,banner=? WHERE id=?",
+                (name,desc,sort,active,banner,eid))
+            db.commit()
+            flash('Emulador atualizado!','success')
+        elif action == 'delete':
+            eid = int(request.form.get('eid',0))
+            db.execute("DELETE FROM emulators WHERE id=?", (eid,))
+            db.commit()
+            flash('Emulador removido!','success')
+    emulators = db.execute("SELECT * FROM emulators ORDER BY sort_order").fetchall()
+    return render_template('admin/emulators.html', emulators=emulators)
+
+
 @app.route('/admin/categorias', methods=['GET','POST'])
 @admin_required
 def admin_categories():
@@ -1452,7 +1524,7 @@ def sitemap():
     xml = ['<?xml version="1.0" encoding="UTF-8"?>']
     xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
     base = request.host_url.rstrip('/')
-    for url in ['/', '/consoles', '/mais-vendidos', '/novidades', '/gratuitos']:
+    for url in ['/', '/consoles', '/emuladores', '/mais-vendidos', '/novidades', '/gratuitos']:
         xml.append(f'<url><loc>{base}{url}</loc></url>')
     for c in consoles:
         xml.append(f'<url><loc>{base}/console/{c["slug"]}</loc></url>')
